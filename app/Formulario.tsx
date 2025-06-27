@@ -1,14 +1,14 @@
 import { IconSymbol } from '@/components/ui/IconSymbol';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  Alert,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    Alert,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 
 // Interfaces para tipagem
@@ -81,6 +81,14 @@ export default function FormularioScreen() {
     updateFormData('somatorio', total.toString());
   };
 
+  // Recalcular somatório automaticamente quando as tentativas mudarem
+  useEffect(() => {
+    const total = tentativas.reduce((acc, tentativa) => 
+      acc + tentativa.pontuacao, 0
+    );
+    setFormData(prev => ({ ...prev, somatorio: total.toString() }));
+  }, [tentativas]);
+
   // Função para salvar o formulário
   const handleSalvar = () => {
     // Validação básica
@@ -92,7 +100,7 @@ export default function FormularioScreen() {
     Alert.alert(
       'Formulário Salvo',
       'Os dados foram salvos com sucesso!',
-      [{ text: 'OK', onPress: () => console.log('Formulário salvo:', formData, tentativas) }]
+      [{ text: 'OK' }]
     );
   };
 
@@ -228,6 +236,8 @@ export default function FormularioScreen() {
                         tentativa.pontuacao === 8 && styles.pontuacaoButtonSelected
                       ]}
                       onPress={() => updatePontuacao(tentativa.id, 8)}
+                      activeOpacity={0.7}
+                      hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}
                     >
                       <Text style={[
                         styles.pontuacaoText,
@@ -241,6 +251,8 @@ export default function FormularioScreen() {
                         tentativa.pontuacao === 10 && styles.pontuacaoButtonSelected
                       ]}
                       onPress={() => updatePontuacao(tentativa.id, 10)}
+                      activeOpacity={0.7}
+                      hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}
                     >
                       <Text style={[
                         styles.pontuacaoText,
@@ -257,6 +269,8 @@ export default function FormularioScreen() {
                         tentativa.pontuacao === 2 && styles.pontuacaoButtonSelected
                       ]}
                       onPress={() => updatePontuacao(tentativa.id, 2)}
+                      activeOpacity={0.7}
+                      hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}
                     >
                       <Text style={[
                         styles.pontuacaoText,
@@ -270,6 +284,8 @@ export default function FormularioScreen() {
                         tentativa.pontuacao === 4 && styles.pontuacaoButtonSelected
                       ]}
                       onPress={() => updatePontuacao(tentativa.id, 4)}
+                      activeOpacity={0.7}
+                      hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}
                     >
                       <Text style={[
                         styles.pontuacaoText,
@@ -285,6 +301,8 @@ export default function FormularioScreen() {
                       tentativa.pontuacao === 0 && styles.pontuacaoButtonSelected
                     ]}
                     onPress={() => updatePontuacao(tentativa.id, 0)}
+                    activeOpacity={0.7}
+                    hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}
                   >
                     <Text style={[
                       styles.pontuacaoText,
@@ -513,6 +531,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   pontuacaoButtonFull: {
     width: '100%',
@@ -524,10 +547,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 8,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   pontuacaoButtonSelected: {
     backgroundColor: '#6366f1',
     borderColor: '#6366f1',
+    elevation: 3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   pontuacaoText: {
     fontSize: 18,

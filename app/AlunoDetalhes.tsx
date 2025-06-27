@@ -2,7 +2,6 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import { router, useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import {
-    Alert,
     SafeAreaView,
     ScrollView,
     StyleSheet,
@@ -26,23 +25,8 @@ export default function AlunoDetalhesScreen() {
   const params = useLocalSearchParams();
 
   const handleNovaAula = () => {
-    Alert.alert(
-      "Nova Aula",
-      `Iniciar formulário de aula para ${params.nome}?`,
-      [
-        {
-          text: "Cancelar",
-          style: "cancel"
-        },
-        {
-          text: "Confirmar",
-          onPress: () => {
-            // Navegar para a tela de formulário
-            router.push('/formulario');
-          }
-        }
-      ]
-    );
+    // Navegar diretamente para o formulário
+    router.push('/Formulario');
   };
 
   const handleVoltar = () => {
