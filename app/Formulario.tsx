@@ -1,14 +1,14 @@
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import React, { useEffect, useState } from 'react';
 import {
-    Alert,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Alert,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 
 // Interfaces para tipagem
@@ -28,6 +28,14 @@ interface TentativaData {
   id: string;
   nome: string;
   pontuacao: number;
+}
+
+interface IntercorrenciaData {
+  id: string;
+  nome: string;
+  selecionada: boolean;
+  frequencia: number;
+  intensidade: number;
 }
 
 type CompletudeOption = 'Não Realizou' | 'Poucas' | 'Metade' | 'Quase Tudo' | 'Tudo' | '';
@@ -55,6 +63,21 @@ export default function FormularioScreen() {
     { id: '5', nome: 'Última Tentativa', pontuacao: 0 }
   ]);
 
+  // Estados para intercorrências
+  const [houveIntercorrencia, setHouveIntercorrencia] = useState(false);
+  const [intercorrencias, setIntercorrencias] = useState<IntercorrenciaData[]>(
+    [
+      { id: '1', nome: 'Fuga/esquiva', selecionada: false, frequencia: 1, intensidade: 1 },
+      { id: '2', nome: 'Birra/choro', selecionada: false, frequencia: 1, intensidade: 1 },
+      { id: '3', nome: 'Destruição', selecionada: false, frequencia: 1, intensidade: 1 },
+      { id: '4', nome: 'Autolesivo', selecionada: false, frequencia: 1, intensidade: 1 },
+      { id: '5', nome: 'Agressividade', selecionada: false, frequencia: 1, intensidade: 1 },
+      { id: '6', nome: 'Sonolento/disperso', selecionada: false, frequencia: 1, intensidade: 1 },
+      { id: '7', nome: 'Estereotipia física ou vocal', selecionada: false, frequencia: 1, intensidade: 1 },
+      { id: '8', nome: 'Recusa contato físico ou instrucional', selecionada: false, frequencia: 1, intensidade: 1 }
+    ]
+  );
+
   const completudeOptions: CompletudeOption[] = [
     'Não Realizou', 'Poucas', 'Metade', 'Quase Tudo', 'Tudo'
   ];
@@ -70,6 +93,15 @@ export default function FormularioScreen() {
       tentativa.id === tentativaId 
         ? { ...tentativa, pontuacao: value }
         : tentativa
+    ));
+  };
+
+  // Função para atualizar intercorrência
+  const updateIntercorrencia = (intercorrenciaId: string, field: 'selecionada' | 'frequencia' | 'intensidade', value: boolean | number) => {
+    setIntercorrencias(prev => prev.map(intercorrencia => 
+      intercorrencia.id === intercorrenciaId 
+        ? { ...intercorrencia, [field]: value }
+        : intercorrencia
     ));
   };
 
@@ -127,6 +159,13 @@ export default function FormularioScreen() {
               observacoes: ''
             });
             setTentativas(prev => prev.map(t => ({ ...t, pontuacao: 0 })));
+            setHouveIntercorrencia(false);
+            setIntercorrencias(prev => prev.map(i => ({ 
+              ...i, 
+              selecionada: false, 
+              frequencia: 1, 
+              intensidade: 1 
+            })));
           }
         }
       ]
@@ -322,6 +361,110 @@ export default function FormularioScreen() {
               </View>
             ))}
           </ScrollView>
+        </View>
+
+        {/* Intercorrências */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Intercorrências</Text>
+          <Text style={{ fontSize: 12, color: '#999', marginBottom: 8 }}>
+            Estado: {houveIntercorrencia ? 'SIM' : 'NÃO'}
+          </Text>
+          
+          {/* Checkbox principal */}
+          <TouchableOpacity 
+            style={styles.checkboxContainer}
+            onPress={() => {
+              console.log('Checkbox clicado! Estado atual:', houveIntercorrencia);
+              setHouveIntercorrencia(!houveIntercorrencia);
+            }}
+            activeOpacity={0.7}
+          >
+            <View style={[styles.checkbox, houveIntercorrencia && styles.checkboxChecked]}>
+              {houveIntercorrencia && (
+                <IconSymbol name="checkmark" size={16} color="#ffffff" />
+              )}
+            </View>
+            <Text style={styles.checkboxLabel}>Houve intercorrência durante a atividade?</Text>
+          </TouchableOpacity>
+
+          {/* Lista de intercorrências (visível apenas se houver intercorrência) */}
+          {houveIntercorrencia && (
+            <View style={styles.intercorrenciasContainer}>
+              <Text style={styles.sectionSubtitle}>
+                Selecione as intercorrências ocorridas e defina frequência e intensidade (1-4):
+              </Text>
+              
+              {intercorrencias.map((intercorrencia) => (
+                <View key={intercorrencia.id} style={styles.intercorrenciaItem}>
+                  {/* Radio button e nome */}
+                  <TouchableOpacity 
+                    style={styles.radioContainer}
+                    onPress={() => updateIntercorrencia(intercorrencia.id, 'selecionada', !intercorrencia.selecionada)}
+                  >
+                    <View style={[styles.radio, intercorrencia.selecionada && styles.radioSelected]}>
+                      {intercorrencia.selecionada && (
+                        <View style={styles.radioInner} />
+                      )}
+                    </View>
+                    <Text style={styles.intercorrenciaNome}>{intercorrencia.nome}</Text>
+                  </TouchableOpacity>
+
+                  {/* Campos de frequência e intensidade (visíveis apenas se selecionado) */}
+                  {intercorrencia.selecionada && (
+                    <View style={styles.frequenciaIntensidadeContainer}>
+                      {/* Frequência */}
+                      <View style={styles.nivelContainer}>
+                        <Text style={styles.nivelLabel}>Frequência</Text>
+                        <View style={styles.nivelBotoes}>
+                          {[1, 2, 3, 4].map((nivel) => (
+                            <TouchableOpacity
+                              key={nivel}
+                              style={[
+                                styles.nivelBotao,
+                                intercorrencia.frequencia === nivel && styles.nivelBotaoSelected
+                              ]}
+                              onPress={() => updateIntercorrencia(intercorrencia.id, 'frequencia', nivel)}
+                            >
+                              <Text style={[
+                                styles.nivelTexto,
+                                intercorrencia.frequencia === nivel && styles.nivelTextoSelected
+                              ]}>
+                                {nivel}
+                              </Text>
+                            </TouchableOpacity>
+                          ))}
+                        </View>
+                      </View>
+
+                      {/* Intensidade */}
+                      <View style={styles.nivelContainer}>
+                        <Text style={styles.nivelLabel}>Intensidade</Text>
+                        <View style={styles.nivelBotoes}>
+                          {[1, 2, 3, 4].map((nivel) => (
+                            <TouchableOpacity
+                              key={nivel}
+                              style={[
+                                styles.nivelBotao,
+                                intercorrencia.intensidade === nivel && styles.nivelBotaoSelected
+                              ]}
+                              onPress={() => updateIntercorrencia(intercorrencia.id, 'intensidade', nivel)}
+                            >
+                              <Text style={[
+                                styles.nivelTexto,
+                                intercorrencia.intensidade === nivel && styles.nivelTextoSelected
+                              ]}>
+                                {nivel}
+                              </Text>
+                            </TouchableOpacity>
+                          ))}
+                        </View>
+                      </View>
+                    </View>
+                  )}
+                </View>
+              ))}
+            </View>
+          )}
         </View>
 
         {/* Somatório */}
@@ -676,5 +819,127 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontWeight: '600',
     fontSize: 16,
+  },
+  
+  // Estilos para intercorrências
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    paddingVertical: 8,
+    backgroundColor: '#ffffff',
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: '#6366f1',
+    backgroundColor: '#ffffff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  checkboxChecked: {
+    backgroundColor: '#6366f1',
+    borderColor: '#6366f1',
+  },
+  checkboxLabel: {
+    fontSize: 16,
+    color: '#374151',
+    fontWeight: '500',
+    flex: 1,
+  },
+  intercorrenciasContainer: {
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#e2e8f0',
+  },
+  intercorrenciaItem: {
+    marginBottom: 16,
+    padding: 12,
+    backgroundColor: '#f8fafc',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+  },
+  radioContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  radio: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#d1d5db',
+    backgroundColor: '#ffffff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  radioSelected: {
+    borderColor: '#6366f1',
+  },
+  radioInner: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#6366f1',
+  },
+  intercorrenciaNome: {
+    fontSize: 16,
+    color: '#374151',
+    fontWeight: '500',
+    flex: 1,
+  },
+  frequenciaIntensidadeContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 16,
+  },
+  nivelContainer: {
+    flex: 1,
+  },
+  nivelLabel: {
+    fontSize: 14,
+    color: '#64748b',
+    fontWeight: '500',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  nivelBotoes: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 4,
+  },
+  nivelBotao: {
+    flex: 1,
+    height: 36,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    backgroundColor: '#ffffff',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  nivelBotaoSelected: {
+    backgroundColor: '#6366f1',
+    borderColor: '#6366f1',
+  },
+  nivelTexto: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#374151',
+  },
+  nivelTextoSelected: {
+    color: '#ffffff',
   },
 });
