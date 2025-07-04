@@ -1,27 +1,28 @@
-import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-
-// Definindo os tipos para as rotas de navegação
-type RootStackParamList = {
-  Alunos: undefined;
-  Cronograma: undefined;
-};
-
-type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Alunos'>;
+import { useRouter } from "expo-router";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function Home() {
-  const navigation = useNavigation<HomeScreenNavigationProp>();
+  const router = useRouter();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Escola de Natação</Text>
+      <Text style={styles.title}>Protocolo TEA</Text>
+      
+      {/* Botão Começar */}
+      <View style={styles.startContainer}>
+        <TouchableOpacity 
+          style={styles.startButton}
+          onPress={() => router.push('/LoginScreen')}
+        >
+          <Text style={styles.startText}>Começar</Text>
+        </TouchableOpacity>
+      </View>
       
       <View style={styles.menuContainer}>
         {/* Botão Alunos */}
         <TouchableOpacity 
           style={styles.menuButton}
-          onPress={() => navigation.navigate('Alunos')}
+          onPress={() => router.push('/Alunos')}
         >
           <Text style={styles.menuText}>Alunos</Text>
         </TouchableOpacity>
@@ -29,7 +30,7 @@ export default function Home() {
         {/* Botão Cronograma */}
         <TouchableOpacity 
           style={styles.menuButton}
-          onPress={() => navigation.navigate('Cronograma')}
+          onPress={() => router.push('/Cronograma')}
         >
           <Text style={styles.menuText}>Cronograma</Text>
         </TouchableOpacity>
@@ -50,6 +51,27 @@ const styles = StyleSheet.create({
     color: '#00796b',
     textAlign: 'center',
     marginVertical: 30,
+  },
+  startContainer: {
+    alignItems: 'center',
+    marginBottom: 30,
+  },
+  startButton: {
+    backgroundColor: '#3498db',
+    paddingVertical: 18,
+    paddingHorizontal: 40,
+    borderRadius: 25,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+  },
+  startText: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   menuContainer: {
     flex: 1,

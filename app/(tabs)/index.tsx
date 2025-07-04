@@ -1,75 +1,99 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { useRouter } from "expo-router";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+export default function Home() {
+  const router = useRouter();
 
-export default function HomeScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <View style={styles.container}>
+      <Text style={styles.title}>Protocolo TEA</Text>
+      
+      {/* Botão Começar */}
+      <View style={styles.startContainer}>
+        <TouchableOpacity 
+          style={styles.startButton}
+          onPress={() => router.push('/LoginScreen')}
+        >
+          <Text style={styles.startText}>Começar</Text>
+        </TouchableOpacity>
+      </View>
+      
+      <View style={styles.menuContainer}>
+        {/* Botão Alunos */}
+        <TouchableOpacity 
+          style={styles.menuButton}
+          onPress={() => router.push('/Alunos')}
+        >
+          <Text style={styles.menuText}>Alunos</Text>
+        </TouchableOpacity>
+
+        {/* Botão Cronograma */}
+        <TouchableOpacity 
+          style={styles.menuButton}
+          onPress={() => router.push('/Cronograma')}
+        >
+          <Text style={styles.menuText}>Cronograma</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
+  container: {
+    flex: 1,
+    backgroundColor: '#e0f7fa',
+    padding: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#00796b',
+    textAlign: 'center',
+    marginVertical: 30,
+  },
+  startContainer: {
     alignItems: 'center',
-    gap: 8,
+    marginBottom: 30,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  startButton: {
+    backgroundColor: '#3498db',
+    paddingVertical: 18,
+    paddingHorizontal: 40,
+    borderRadius: 25,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  startText: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  menuContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  menuButton: {
+    backgroundColor: '#0097a7',
+    padding: 15,
+    borderRadius: 10,
+    width: '80%',
+    marginVertical: 10,
+    alignItems: 'center',
+    elevation: 3, // para Android (sombra)
+    shadowColor: '#000', // para iOS
+    shadowOffset: { width: 0, height: 2 }, // para iOS
+    shadowOpacity: 0.3, // para iOS
+    shadowRadius: 3, // para iOS
+  },
+  menuText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
