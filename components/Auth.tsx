@@ -53,8 +53,8 @@ export const signUpWithEmail = async (email: string, password: string, nomeCompl
     if (authData.user) {
       const professorData = {
         id: authData.user.id,     // UUID do usuário autenticado
-        nome: nomeCompleto || email.split('@')[0], // Nome completo fornecido
-        email: email,             // Email do usuário
+        nome: nomeCompleto,
+        email: email,          
       }
 
       console.log('Tentando inserir na tabela Professor:', professorData)
@@ -113,14 +113,25 @@ export const signUpWithEmailAndRetry = async (email: string, password: string, n
     const tableTest = await testProfessorTable()
     console.log('Teste da tabela Professor:', tableTest)
     
-    // 1. Criar usuário no Supabase Auth
+    // Verificar políticas RLS
+    const rlsCheck = await checkProfessorRLSPolicies()
+    console.log('Verificação RLS:', rlsCheck)
+    
+    // 1. Criar usuário no Supabase Auth com metadados
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: {
+          display_name: nomeCompleto?.trim() || email.split('@')[0],
+          full_name: nomeCompleto?.trim() || email.split('@')[0],
+        }
+      }
     })
 
     console.log('=== RESULTADO AUTH ===')
     console.log('User ID:', authData?.user?.id)
+    console.log('Display Name:', authData?.user?.user_metadata?.display_name)
     console.log('Email confirmado:', authData?.user?.email_confirmed_at)
     console.log('Erro auth:', authError)
 
@@ -133,7 +144,37 @@ export const signUpWithEmailAndRetry = async (email: string, password: string, n
       return { data: authData, error: { message: 'ID do usuário não foi gerado' } }
     }
 
-    // 2. Tentar inserir na tabela Professor com diferentes abordagens
+    // 2. Aguardar a sessão ser estabelecida e atualizar perfil
+    if (authData.user && nomeCompleto) {
+      try {
+        // Aguardar um pouco para a sessão ser estabelecida
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        
+        // Verificar se a sessão está ativa
+        const { data: session } = await supabase.auth.getSession()
+        
+        if (session?.session) {
+          const { error: updateError } = await supabase.auth.updateUser({
+            data: {
+              display_name: nomeCompleto.trim(),
+              full_name: nomeCompleto.trim(),
+            }
+          })
+
+          if (updateError) {
+            console.warn('Erro ao atualizar perfil do usuário:', updateError)
+          } else {
+            console.log('Perfil do usuário atualizado com sucesso')
+          }
+        } else {
+          console.warn('Sessão não encontrada, pulando atualização do perfil')
+        }
+      } catch (updateErr) {
+        console.warn('Falha ao atualizar metadados do usuário:', updateErr)
+      }
+    }
+
+    // 3. Tentar inserir na tabela Professor com diferentes abordagens
     const professorData = {
       id: authData.user.id,
       nome: nomeCompleto?.trim() || email.split('@')[0],
@@ -143,7 +184,11 @@ export const signUpWithEmailAndRetry = async (email: string, password: string, n
     console.log('=== TENTATIVA 1: INSERT BÁSICO ===')
     console.log('Dados para inserir:', professorData)
 
-    // Tentativa 1: Insert básico
+    // Tentativa 1: Insert básico - usando a sessão do usuário
+    const { data: currentSession } = await supabase.auth.getSession()
+    
+    console.log('Sessão atual:', currentSession?.session ? 'Ativa' : 'Inativa')
+    
     let { data: insertedProfessor, error: professorError } = await supabase
       .from('Professor')
       .insert(professorData)
@@ -252,5 +297,42 @@ export const testProfessorTable = async () => {
   } catch (error) {
     console.error('Erro ao testar tabela:', error)
     return { success: false, error }
+  }
+}
+
+// Função para verificar e corrigir políticas RLS da tabela Professor
+export const checkProfessorRLSPolicies = async () => {
+  try {
+    console.log('Verificando políticas RLS da tabela Professor...')
+    
+    // Primeiro, tentar uma consulta simples para testar acesso
+    const { data, error } = await supabase
+      .from('Professor')
+      .select('id')
+      .limit(1)
+    
+    if (error && error.code === '42501') {
+      console.log('❌ RLS está bloqueando acesso à tabela Professor')
+      console.log('Soluções possíveis:')
+      console.log('1. Desabilitar RLS temporariamente no Supabase Dashboard')
+      console.log('2. Criar políticas RLS adequadas')
+      console.log('3. Usar service_role key (apenas para desenvolvimento)')
+      
+      return { 
+        hasAccess: false, 
+        error: 'RLS está bloqueando inserções na tabela Professor',
+        code: error.code 
+      }
+    }
+    
+    console.log('✅ Acesso à tabela Professor está funcionando')
+    return { hasAccess: true, error: null }
+    
+  } catch (error) {
+    console.error('Erro ao verificar RLS:', error)
+    return { 
+      hasAccess: false, 
+      error: 'Erro ao verificar políticas RLS' 
+    }
   }
 }

@@ -73,6 +73,7 @@ export const styles = StyleSheet.create({
   },
   primaryButton: {
     backgroundColor: '#3498db',
+    minHeight: 48,
   },
   secondaryButton: {
     backgroundColor: 'transparent',
@@ -85,6 +86,7 @@ export const styles = StyleSheet.create({
   buttonText: {
     color: '#ffffff',
     fontSize: 16,
+    textAlign: 'center',
     fontWeight: '600',
   },
   secondaryButtonText: {
@@ -106,5 +108,23 @@ export const styles = StyleSheet.create({
     marginHorizontal: 16,
     color: '#7f8c8d',
     fontSize: 14,
+  },
+  linkText: {
+    color: '#1976d2',
+    fontSize: 15,
+    textAlign: 'center',
+    marginTop: 12,
+    textDecorationLine: 'underline',
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+    marginBottom: 20,
   },
 });

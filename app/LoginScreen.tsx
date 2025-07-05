@@ -1,18 +1,19 @@
 import { signInWithEmail, signUpWithEmailAndRetry } from '@/components/Auth';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
-
+import { styles } from './styles/LoginScreenStyles';
 export default function LoginScreen() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [nomeCompleto, setNomeCompleto] = useState(''); // Novo campo
@@ -32,8 +33,12 @@ export default function LoginScreen() {
       if (error) {
         Alert.alert('Erro no Login', error.message);
       } else {
-        Alert.alert('Sucesso', 'Login realizado com sucesso!');
-        // Aqui você pode navegar para a tela principal
+        // Navegar diretamente para a página Alunos
+        router.replace('/(tabs)/Alunos');
+        // Mostrar um alert de sucesso sem bloquear a navegação
+        setTimeout(() => {
+          Alert.alert('Sucesso', 'Login realizado com sucesso!');
+        }, 100);
       }
     } catch (error) {
       Alert.alert('Erro', 'Ocorreu um erro inesperado');
@@ -65,15 +70,20 @@ export default function LoginScreen() {
       if (error) {
         Alert.alert('Erro no Cadastro', error.message);
       } else {
-        Alert.alert(
-          'Cadastro Realizado', 
-          `Bem-vindo(a), ${nomeCompleto}! Por favor, verifique seu email para confirmar a conta. Seus dados foram salvos na tabela Professor.`
-        );
-        setIsSignUp(false);
         // Limpar campos
         setEmail('');
         setPassword('');
         setNomeCompleto('');
+        setIsSignUp(false);
+        // Navegar para a página Alunos
+        router.replace('/(tabs)/Alunos');
+        // Mostrar alert de sucesso sem bloquear a navegação
+        setTimeout(() => {
+          Alert.alert(
+            'Cadastro Realizado', 
+            `Bem-vindo(a), ${nomeCompleto}! Por favor, verifique seu email para confirmar a conta.`
+          );
+        }, 100);
       }
     } catch (error) {
       Alert.alert('Erro', 'Ocorreu um erro inesperado');
@@ -107,7 +117,7 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView 
       style={styles.container} 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'android' ? 'padding' : 'height'}
     >
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.card}>
@@ -157,7 +167,7 @@ export default function LoginScreen() {
           </View>
 
           <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
+            style={[styles.button, styles.primaryButton, loading && styles.buttonDisabled]}
             onPress={isSignUp ? handleSignUp : handleLogin}
             disabled={loading}
           >
@@ -196,104 +206,3 @@ export default function LoginScreen() {
     </KeyboardAvoidingView>
   );
 }
-
-// ...existing styles...
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  card: {
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 30,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#2c3e50',
-    textAlign: 'center',
-    marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 18,
-    color: '#7f8c8d',
-    textAlign: 'center',
-    marginBottom: 30,
-  },
-  inputContainer: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#2c3e50',
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 12,
-    padding: 15,
-    fontSize: 16,
-    backgroundColor: '#f8f9fa',
-  },
-  button: {
-    backgroundColor: '#3498db',
-    borderRadius: 12,
-    padding: 15,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  linkText: {
-    color: '#3498db',
-    fontSize: 16,
-    textAlign: 'center',
-    marginTop: 15,
-    textDecorationLine: 'underline',
-  },
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 20,
-  },
-  dividerText: {
-    flex: 1,
-    textAlign: 'center',
-    color: '#7f8c8d',
-    fontSize: 16,
-  },
-  secondaryButton: {
-    borderWidth: 1,
-    borderColor: '#3498db',
-    borderRadius: 12,
-    padding: 15,
-    alignItems: 'center',
-  },
-  secondaryButtonText: {
-    color: '#3498db',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});
