@@ -1,56 +1,148 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { Platform } from 'react-native';
+import { createClient } from '@supabase/supabase-js';
 
-// Importar polyfill apenas em runtime
-if (typeof window !== 'undefined') {
-  require('react-native-url-polyfill/auto');
-}
-
-const supabaseUrl = 'https://pcqoudbrejaezyxiftuj.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjcW91ZGJyZWphZXp5eGlmdHVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzODM1OTUsImV4cCI6MjA2Njk1OTU5NX0.HhFwB5BDEX4OTdYY_eXP7zuyZL-vn2xrTNNbatz3jRc';
-
-// Verificar se estamos em um ambiente React Native válido
-const isReactNativeEnvironment = () => {
+// Verificar se estamos em um ambiente React Native
+const isReactNative = () => {
   try {
-    return typeof window !== 'undefined' && Platform.OS !== undefined;
+    // Verificar se estamos realmente no React Native, não apenas no Metro bundler
+    if (typeof window !== 'undefined') {
+      // Se window existe, provavelmente estamos na web
+      return false;
+    }
+    
+    // Tentar acessar o Platform do React Native
+    const { Platform } = require('react-native');
+    return Platform && typeof Platform.OS === 'string';
   } catch {
     return false;
   }
 };
 
-let supabaseInstance: SupabaseClient | null = null;
+// Verificar se estamos em um ambiente com window
+const hasWindow = () => {
+  try {
+    return typeof window !== 'undefined';
+  } catch {
+    return false;
+  }
+};
 
-// Função para inicializar o Supabase apenas quando necessário
-const initializeSupabase = () => {
-  if (!supabaseInstance) {
-    const config: any = {
-      auth: {
-        detectSessionInUrl: false,
-      },
+// Verificar se estamos em um ambiente web
+const isWeb = () => {
+  try {
+    return typeof window !== 'undefined' && typeof document !== 'undefined';
+  } catch {
+    return false;
+  }
+};
+
+// Função para criar um storage seguro
+const createSafeStorage = () => {
+  const envInfo = {
+    isRN: isReactNative(),
+    isWebEnv: isWeb(),
+    hasWindow: hasWindow(),
+    hasLocalStorage: typeof localStorage !== 'undefined'
+  };
+  
+  console.log('� Ambiente detectado:', envInfo);
+
+  // Se estivermos na web (com window e localStorage), usar localStorage
+  if (envInfo.hasWindow && envInfo.hasLocalStorage && !envInfo.isRN) {
+    console.log('🌐 Usando localStorage (Web)');
+    return {
+      getItem: (key: string) => Promise.resolve(localStorage.getItem(key)),
+      setItem: (key: string, value: string) => Promise.resolve(localStorage.setItem(key, value)),
+      removeItem: (key: string) => Promise.resolve(localStorage.removeItem(key)),
+      clear: () => Promise.resolve(localStorage.clear()),
     };
+  }
 
-    // Adicionar configurações específicas do React Native apenas se estivermos no ambiente correto
-    if (isReactNativeEnvironment()) {
-      config.auth.storage = AsyncStorage;
-      config.auth.autoRefreshToken = true;
-      config.auth.persistSession = true;
+  // Se estivermos no React Native, tentar usar AsyncStorage
+  if (envInfo.isRN) {
+    try {
+      const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+      if (AsyncStorage && typeof AsyncStorage.getItem === 'function') {
+        console.log('📱 Usando AsyncStorage (React Native)');
+        return AsyncStorage;
+      }
+    } catch (error) {
+      console.warn('AsyncStorage não disponível:', error);
     }
-
-    supabaseInstance = createClient(supabaseUrl, supabaseAnonKey, config);
   }
-  return supabaseInstance;
+
+  // Fallback para storage em memória (último recurso)
+  console.log('💾 Usando storage em memória (fallback)');
+  const memoryStorage: { [key: string]: string } = {};
+  return {
+    getItem: (key: string) => Promise.resolve(memoryStorage[key] || null),
+    setItem: (key: string, value: string) => Promise.resolve(memoryStorage[key] = value),
+    removeItem: (key: string) => Promise.resolve(delete memoryStorage[key]),
+    clear: () => Promise.resolve(Object.keys(memoryStorage).forEach(key => delete memoryStorage[key])),
+  };
 };
 
-// Getter que inicializa sob demanda
-export const getSupabase = () => {
-  return initializeSupabase();
+// Criar instância do storage
+const storage = createSafeStorage();
+
+// Importar polyfill para React Native apenas se necessário
+if (isReactNative() && !hasWindow()) {
+  try {
+    require('react-native-url-polyfill/auto');
+  } catch (error) {
+    console.warn('URL polyfill não disponível:', error);
+  }
+}
+
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+
+// Debug das variáveis de ambiente (apenas em desenvolvimento)
+if (__DEV__) {
+  console.log('🔍 Debug Supabase:');
+  console.log('URL:', supabaseUrl ? '✅ Definida' : '❌ Não definida');
+  console.log('Key:', supabaseAnonKey ? '✅ Definida' : '❌ Não definida');
+  console.log('Is React Native:', isReactNative());
+  console.log('Is Web:', isWeb());
+  console.log('Has Window:', hasWindow());
+  console.log('Storage inicializado:', !!storage);
+}
+
+// Verificar se as variáveis de ambiente estão definidas
+if (!supabaseUrl || !supabaseAnonKey) {
+  const errorMessage = 'Missing Supabase environment variables. Please check your .env file.';
+  
+  if (__DEV__) {
+    console.error('❌ Variáveis de ambiente não encontradas!');
+    console.log('Arquivo .env deve estar na raiz do projeto com:');
+    console.log('EXPO_PUBLIC_SUPABASE_URL=sua_url');
+    console.log('EXPO_PUBLIC_SUPABASE_ANON_KEY=sua_chave');
+  }
+  
+  throw new Error(errorMessage);
+}
+
+// Configuração do Supabase baseada no ambiente
+const getSupabaseConfig = () => {
+  const baseConfig = {
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: isWeb(), // Detectar sessão na URL apenas na web
+    },
+  };
+
+  // Sempre usar nosso storage seguro
+  return {
+    ...baseConfig,
+    auth: {
+      ...baseConfig.auth,
+      storage: storage,
+    },
+  };
 };
 
-// Para compatibilidade com código existente
-export const supabase = new Proxy({} as SupabaseClient, {
-  get(target, prop) {
-    const instance = initializeSupabase();
-    return instance[prop as keyof SupabaseClient];
-  }
-});
+// Criar uma única instância do Supabase
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, getSupabaseConfig());
+
+// Função para obter a instância (para compatibilidade)
+export const getSupabase = () => supabase;

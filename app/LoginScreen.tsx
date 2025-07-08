@@ -2,16 +2,16 @@ import { signInWithEmail, signUpWithEmailAndRetry } from '@/components/Auth';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
-import { styles } from './styles/LoginScreenStyles';
+import { styles } from '../styles/LoginScreenStyles';
 export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -34,7 +34,7 @@ export default function LoginScreen() {
         Alert.alert('Erro no Login', error.message);
       } else {
         // Navegar diretamente para a página Alunos
-        router.replace('/(tabs)/Alunos');
+        router.replace('/Alunos');
         // Mostrar um alert de sucesso sem bloquear a navegação
         setTimeout(() => {
           Alert.alert('Sucesso', 'Login realizado com sucesso!');
@@ -76,7 +76,7 @@ export default function LoginScreen() {
         setNomeCompleto('');
         setIsSignUp(false);
         // Navegar para a página Alunos
-        router.replace('/(tabs)/Alunos');
+        router.replace('/Alunos');
         // Mostrar alert de sucesso sem bloquear a navegação
         setTimeout(() => {
           Alert.alert(

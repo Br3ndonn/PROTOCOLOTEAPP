@@ -1,14 +1,14 @@
+import ScreenWrapper from '@/components/shared/ScreenWrapper';
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import { styles } from '@/styles/AlunoDetalhesStyles';
 import { router, useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import {
-  SafeAreaView,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
-import { styles } from './styles/AlunoDetalhesStyles';
 // Interface para os parâmetros recebidos da navegação
 interface AlunoParams {
   id: string;
@@ -28,20 +28,8 @@ export default function AlunoDetalhesScreen() {
     router.push('/Formulario');
   };
 
-  const handleVoltar = () => {
-    router.back();
-  };
-
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header com botão voltar */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={handleVoltar}>
-          <IconSymbol name="chevron.left" size={24} color="#6366f1" />
-          <Text style={styles.backText}>Voltar</Text>
-        </TouchableOpacity>
-      </View>
-
+    <ScreenWrapper title={`Detalhes - ${params.nome}`}>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Card principal do aluno */}
         <View style={styles.alunoCard}>
@@ -114,7 +102,7 @@ export default function AlunoDetalhesScreen() {
           <Text style={styles.novaAulaText}>Nova Aula</Text>
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 

@@ -1,15 +1,16 @@
+import ScreenWrapper from '@/components/shared/ScreenWrapper';
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import { useAuthNavigation } from '@/hooks/useAuthNavigation';
+import { styles } from '@/styles/AlunosStyles';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
   FlatList,
-  SafeAreaView,
   Text,
   TextInput,
   TouchableOpacity,
   View
 } from 'react-native';
-import { styles } from '../styles/AlunosStyles';
 // Interface para definir o tipo de dados do aluno
 interface Aluno {
   id: string;
@@ -21,7 +22,10 @@ interface Aluno {
 }
 
 export default function AlunosScreen() {
-  // Estado para armazenar a lista de alunos
+  const { user, loading } = useAuthNavigation();
+  const isAuthenticated = !!user;
+  
+  // Estados para a lista de alunos
   const [alunos, setAlunos] = useState<Aluno[]>([
     {
       id: '1',
@@ -125,13 +129,17 @@ export default function AlunosScreen() {
     </TouchableOpacity>
   );
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Lista de Alunos</Text>
-        <Text style={styles.subtitle}>Protocolo TEA</Text>
-      </View>
+  // Não renderizar nada enquanto verifica autenticação
+  if (loading || !isAuthenticated) {
+    return null;
+  }
 
+  return (
+    <ScreenWrapper 
+      title="Lista de Alunos"
+      subtitle="Protocolo TEA"
+      showBackButton={false} // Não mostrar botão de voltar na tab principal
+    >
       {/* Campo de busca */}
       <View style={styles.searchContainer}>
         <IconSymbol name="magnifyingglass" size={20} color="#9ca3af" />
@@ -160,7 +168,7 @@ export default function AlunosScreen() {
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 

@@ -37,3 +37,9 @@ yarn-error.*
 *.tsbuildinfo
 
 app-example
+test.bat
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development

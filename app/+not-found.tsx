@@ -1,20 +1,19 @@
-import { Link, Stack } from 'expo-router';
-import { StyleSheet } from 'react-native';
-
+import ScreenWrapper from '@/components/shared/ScreenWrapper';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { Link } from 'expo-router';
+import { StyleSheet } from 'react-native';
 
 export default function NotFoundScreen() {
   return (
-    <>
-      <Stack.Screen options={{ title: 'Oops!' }} />
+    <ScreenWrapper title="Página não encontrada" showBackButton={false}>
       <ThemedView style={styles.container}>
-        <ThemedText type="title">This screen does not exist.</ThemedText>
-        <Link href="/" style={styles.link}>
-          <ThemedText type="link">Go to home screen!</ThemedText>
+        <ThemedText type="title">Esta tela não existe.</ThemedText>
+        <Link href="/LoginScreen" style={styles.link}>
+          <ThemedText type="link">Voltar para o início</ThemedText>
         </Link>
       </ThemedView>
-    </>
+    </ScreenWrapper>
   );
 }
 
