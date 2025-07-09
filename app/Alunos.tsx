@@ -168,6 +168,17 @@ export default function AlunosScreen() {
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
+
+      {/* Botão flutuante para adicionar novo aprendiz */}
+      <TouchableOpacity
+        style={styles.fabButton}
+        onPress={() => {
+          console.log('Navegando para CadastroAprendiz...');
+          router.push('/CadastroAprendiz' as any);
+        }}
+      >
+        <IconSymbol name="plus" size={24} color="#ffffff" />
+      </TouchableOpacity>
     </ScreenWrapper>
   );
 }

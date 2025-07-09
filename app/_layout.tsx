@@ -21,10 +21,12 @@ export default function RootLayout() {
     <AuthProvider>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack>
+          <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="LoginScreen" options={{ headerShown: false }} />
           <Stack.Screen name="Alunos" options={{ headerShown: false }} />
           <Stack.Screen name="AlunoDetalhes" options={{ headerShown: false }} />
           <Stack.Screen name="Formulario" options={{ headerShown: false }} />
+          <Stack.Screen name="CadastroAprendiz" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
         </Stack>
         <StatusBar style="auto" />

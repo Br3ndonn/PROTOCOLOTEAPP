@@ -23,6 +23,7 @@ const MAPPING = {
   'chevron.right': 'chevron-right',
   'calendar': 'event',
   'doc.text': 'description',
+  'plus': 'add',
   'plus.circle.fill': 'add-circle',
   'chevron.left.forwardslash.chevron.right': 'code',
 } as IconMapping;
