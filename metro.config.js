@@ -1,15 +1,13 @@
 const { getDefaultConfig } = require('expo/metro-config');
 
-/** @type {import('expo/metro-config').MetroConfig} */
 const config = getDefaultConfig(__dirname);
 
-// Configurações para resolver problemas com AsyncStorage e Supabase
+// Resolver problemas de polyfill
+config.resolver.platforms = ['native', 'android', 'ios', 'web'];
+
 config.resolver.alias = {
   ...config.resolver.alias,
-  'react-native-sqlite-storage': false,
+  'react-native$': 'react-native-web'
 };
-
-// Resolver problemas com polyfills
-config.resolver.platforms = ['ios', 'android', 'web', 'native'];
 
 module.exports = config;
