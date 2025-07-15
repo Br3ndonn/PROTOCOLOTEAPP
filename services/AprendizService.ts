@@ -7,6 +7,14 @@ export interface AprendizData {
   diagnostico: boolean;
   created_at?: string;
   updated_at?: string;
+  // Campos adicionais para informações complementares
+  idade_diagnostico?: number;
+  irmaos?: boolean;
+  qualidades?: string[];
+  caracteristica_compr_vida?: string[];
+  medicamentos?: string[];
+  qualidade_sono?: string;
+  alimentacao?: string;
 }
 
 // Tipo helper para compatibilidade com componentes que usam 'id'
@@ -15,6 +23,14 @@ export interface AprendizDisplay {
   nome: string;
   data_nascimento: string;
   diagnostico: boolean;
+  // Campos adicionais para informações complementares
+  idade_diagnostico?: number;
+  irmaos?: boolean;
+  qualidades?: string[];
+  caracteristica_compr_vida?: string[];
+  medicamentos?: string[];
+  qualidade_sono?: string;
+  alimentacao?: string;
 }
 
 // Função helper para converter AprendizData para AprendizDisplay
@@ -22,7 +38,14 @@ export const mapAprendizToDisplay = (aprendiz: AprendizData): AprendizDisplay =>
   id: aprendiz.id_aprendiz,
   nome: aprendiz.nome,
   data_nascimento: aprendiz.data_nascimento,
-  diagnostico: aprendiz.diagnostico
+  diagnostico: aprendiz.diagnostico,
+  idade_diagnostico: aprendiz.idade_diagnostico,
+  irmaos: aprendiz.irmaos,
+  qualidades: aprendiz.qualidades,
+  caracteristica_compr_vida: aprendiz.caracteristica_compr_vida,
+  medicamentos: aprendiz.medicamentos,
+  qualidade_sono: aprendiz.qualidade_sono,
+  alimentacao: aprendiz.alimentacao
 });
 
 class AprendizService {
@@ -51,7 +74,19 @@ class AprendizService {
     try {
       const { data, error } = await supabase
         .from('Aprendiz')
-        .select('id_aprendiz, nome, data_nascimento, diagnostico')
+        .select(`
+          id_aprendiz, 
+          nome, 
+          data_nascimento, 
+          diagnostico,
+          idade_diagnostico,
+          irmaos,
+          qualidades,
+          caracteristica_compr_vida,
+          medicamentos,
+          qualidade_sono,
+          alimentacao
+        `)
         .eq('id_aprendiz', id)
         .single();
 

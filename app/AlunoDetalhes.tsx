@@ -19,6 +19,7 @@ export default function AlunoDetalhesScreen() {
   const [aprendiz, setAprendiz] = useState<AprendizDisplay | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [abaAtiva, setAbaAtiva] = useState<'basicas' | 'complementares'>('basicas');
 
   // Carregar dados detalhados do aprendiz
   const carregarAprendiz = async () => {
@@ -68,8 +69,13 @@ export default function AlunoDetalhesScreen() {
   };
 
   const handleNovaAula = () => {
-    // Navegar diretamente para o formulário
-    router.push('/Formulario');
+    // Navegar para o formulário passando o ID do aprendiz
+    router.push({
+      pathname: '/Formulario',
+      params: {
+        aprendizId: params.id
+      }
+    });
   };
 
   if (loading) {
@@ -120,69 +126,192 @@ export default function AlunoDetalhesScreen() {
 
   return (
     <ScreenWrapper title={`Detalhes - ${aprendiz.nome}`}>
+      {/* Sistema de Abas */}
+      <View style={styles.tabContainer}>
+        <TouchableOpacity
+          style={[styles.tab, abaAtiva === 'basicas' && styles.tabAtiva]}
+          onPress={() => setAbaAtiva('basicas')}
+        >
+          <Text style={[styles.tabText, abaAtiva === 'basicas' && styles.tabTextAtiva]}>
+            Informações Básicas
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, abaAtiva === 'complementares' && styles.tabAtiva]}
+          onPress={() => setAbaAtiva('complementares')}
+        >
+          <Text style={[styles.tabText, abaAtiva === 'complementares' && styles.tabTextAtiva]}>
+            Informações Complementares
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Card principal do aluno */}
-        <View style={styles.alunoCard}>
-          <View style={styles.alunoHeader}>
-            <View style={styles.alunoAvatar}>
-              <IconSymbol name="figure.child" size={32} color="#6366f1" />
+        {abaAtiva === 'basicas' ? (
+          <>
+            {/* Card principal do aluno */}
+            <View style={styles.alunoCard}>
+              <View style={styles.alunoHeader}>
+                <View style={styles.alunoAvatar}>
+                  <IconSymbol name="figure.child" size={32} color="#6366f1" />
+                </View>
+                <View style={styles.alunoInfo}>
+                  <Text style={styles.alunoNome}>{aprendiz.nome}</Text>
+                  <Text style={styles.alunoIdade}>
+                    Data de Nascimento: {formatarData(aprendiz.data_nascimento)}
+                  </Text>
+                </View>
+                <View style={[
+                  styles.statusBadge,
+                  { backgroundColor: aprendiz.diagnostico ? '#10b981' : '#f59e0b' }
+                ]}>
+                  <Text style={styles.statusText}>
+                    {aprendiz.diagnostico ? 'Diagnóstico' : 'Sem Diagnóstico'}
+                  </Text>
+                </View>
+              </View>
             </View>
-            <View style={styles.alunoInfo}>
-              <Text style={styles.alunoNome}>{aprendiz.nome}</Text>
-              <Text style={styles.alunoIdade}>
-                Data de Nascimento: {formatarData(aprendiz.data_nascimento)}
-              </Text>
-            </View>
-            <View style={[
-              styles.statusBadge,
-              { backgroundColor: aprendiz.diagnostico ? '#10b981' : '#f59e0b' }
-            ]}>
-              <Text style={styles.statusText}>
-                {aprendiz.diagnostico ? 'Diagnóstico' : 'Sem Diagnóstico'}
-              </Text>
-            </View>
-          </View>
-        </View>
 
-        {/* Informações detalhadas */}
-        <View style={styles.infoSection}>
-          <Text style={styles.sectionTitle}>Informações</Text>
-          
-          <View style={styles.infoItem}>
-            <View style={styles.infoIcon}>
-              <IconSymbol name="person.fill" size={20} color="#6366f1" />
-            </View>
-            <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Nome Completo</Text>
-              <Text style={styles.infoValue}>{aprendiz.nome}</Text>
-            </View>
-          </View>
+            {/* Informações detalhadas */}
+            <View style={styles.infoSection}>
+              <Text style={styles.sectionTitle}>Informações</Text>
+              
+              <View style={styles.infoItem}>
+                <View style={styles.infoIcon}>
+                  <IconSymbol name="person.fill" size={20} color="#6366f1" />
+                </View>
+                <View style={styles.infoContent}>
+                  <Text style={styles.infoLabel}>Nome Completo</Text>
+                  <Text style={styles.infoValue}>{aprendiz.nome}</Text>
+                </View>
+              </View>
 
-          <View style={styles.infoItem}>
-            <View style={styles.infoIcon}>
-              <IconSymbol name="calendar" size={20} color="#6366f1" />
-            </View>
-            <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Data de Nascimento</Text>
-              <Text style={styles.infoValue}>{formatarData(aprendiz.data_nascimento)}</Text>
-            </View>
-          </View>
+              <View style={styles.infoItem}>
+                <View style={styles.infoIcon}>
+                  <IconSymbol name="calendar" size={20} color="#6366f1" />
+                </View>
+                <View style={styles.infoContent}>
+                  <Text style={styles.infoLabel}>Data de Nascimento</Text>
+                  <Text style={styles.infoValue}>{formatarData(aprendiz.data_nascimento)}</Text>
+                </View>
+              </View>
 
-          <View style={styles.infoItem}>
-            <View style={styles.infoIcon}>
-              <IconSymbol name="doc.text" size={20} color="#6366f1" />
+              <View style={styles.infoItem}>
+                <View style={styles.infoIcon}>
+                  <IconSymbol name="doc.text" size={20} color="#6366f1" />
+                </View>
+                <View style={styles.infoContent}>
+                  <Text style={styles.infoLabel}>Status do Diagnóstico</Text>
+                  <Text style={[
+                    styles.infoValue,
+                    { color: aprendiz.diagnostico ? '#10b981' : '#f59e0b' }
+                  ]}>
+                    {aprendiz.diagnostico ? 'Diagnóstico confirmado' : 'Aguardando diagnóstico'}
+                  </Text>
+                </View>
+              </View>
+
+              {aprendiz.idade_diagnostico && (
+                <View style={styles.infoItem}>
+                  <View style={styles.infoIcon}>
+                    <IconSymbol name="clock" size={20} color="#6366f1" />
+                  </View>
+                  <View style={styles.infoContent}>
+                    <Text style={styles.infoLabel}>Idade do Diagnóstico</Text>
+                    <Text style={styles.infoValue}>{aprendiz.idade_diagnostico} anos</Text>
+                  </View>
+                </View>
+              )}
             </View>
-            <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Status do Diagnóstico</Text>
-              <Text style={[
-                styles.infoValue,
-                { color: aprendiz.diagnostico ? '#10b981' : '#f59e0b' }
-              ]}>
-                {aprendiz.diagnostico ? 'Diagnóstico confirmado' : 'Aguardando diagnóstico'}
-              </Text>
+          </>
+        ) : (
+          <>
+            {/* Informações Familiares */}
+            <View style={styles.infoSection}>
+              <Text style={styles.sectionTitle}>Informações Familiares</Text>
+              
+              <View style={styles.infoItem}>
+                <View style={styles.infoIcon}>
+                  <IconSymbol name="person.2" size={20} color="#6366f1" />
+                </View>
+                <View style={styles.infoContent}>
+                  <Text style={styles.infoLabel}>Possui Irmãos</Text>
+                  <Text style={styles.infoValue}>{aprendiz.irmaos ? 'Sim' : 'Não'}</Text>
+                </View>
+              </View>
             </View>
-          </View>
-        </View>
+
+            {/* Qualidades */}
+            {aprendiz.qualidades && aprendiz.qualidades.length > 0 && (
+              <View style={styles.infoSection}>
+                <Text style={styles.sectionTitle}>Qualidades</Text>
+                <View style={styles.tagsContainer}>
+                  {aprendiz.qualidades.map((qualidade, index) => (
+                    <View key={index} style={styles.tag}>
+                      <Text style={styles.tagText}>{qualidade}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {/* Características que Comprometem a Vida */}
+            {aprendiz.caracteristica_compr_vida && aprendiz.caracteristica_compr_vida.length > 0 && (
+              <View style={styles.infoSection}>
+                <Text style={styles.sectionTitle}>Características que Comprometem a Vida</Text>
+                <View style={styles.tagsContainer}>
+                  {aprendiz.caracteristica_compr_vida.map((caracteristica, index) => (
+                    <View key={index} style={styles.tag}>
+                      <Text style={styles.tagText}>{caracteristica}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {/* Informações de Saúde */}
+            <View style={styles.infoSection}>
+              <Text style={styles.sectionTitle}>Informações de Saúde</Text>
+              
+              {aprendiz.medicamentos && aprendiz.medicamentos.length > 0 && (
+                <>
+                  <Text style={styles.subsectionTitle}>Medicamentos</Text>
+                  <View style={styles.tagsContainer}>
+                    {aprendiz.medicamentos.map((medicamento, index) => (
+                      <View key={index} style={[styles.tag, { backgroundColor: '#fef3c7' }]}>
+                        <Text style={[styles.tagText, { color: '#92400e' }]}>{medicamento}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </>
+              )}
+              
+              {aprendiz.qualidade_sono && (
+                <View style={styles.infoItem}>
+                  <View style={styles.infoIcon}>
+                    <IconSymbol name="moon.fill" size={20} color="#6366f1" />
+                  </View>
+                  <View style={styles.infoContent}>
+                    <Text style={styles.infoLabel}>Qualidade do Sono</Text>
+                    <Text style={styles.infoValue}>{aprendiz.qualidade_sono}</Text>
+                  </View>
+                </View>
+              )}
+              
+              {aprendiz.alimentacao && (
+                <View style={styles.infoItem}>
+                  <View style={styles.infoIcon}>
+                    <IconSymbol name="fork.knife" size={20} color="#6366f1" />
+                  </View>
+                  <View style={styles.infoContent}>
+                    <Text style={styles.infoLabel}>Alimentação</Text>
+                    <Text style={styles.infoValue}>{aprendiz.alimentacao}</Text>
+                  </View>
+                </View>
+              )}
+            </View>
+          </>
+        )}
       </ScrollView>
 
       {/* Botão Nova Aula fixo na parte inferior */}

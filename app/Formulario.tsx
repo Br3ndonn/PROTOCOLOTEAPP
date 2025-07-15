@@ -6,7 +6,9 @@ import ObservacoesSection from '@/components/formulario/ObservacoesSection';
 import { AtividadeData, FormData } from '@/components/formulario/types';
 import ScreenWrapper from '@/components/shared/ScreenWrapper';
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import { aprendizService } from '@/services/AprendizService';
 import { styles } from '@/styles/FormularioStyles';
+import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   Alert,
@@ -16,6 +18,8 @@ import {
 } from 'react-native';
 
 export default function FormularioScreen() {
+  const params = useLocalSearchParams();
+  
   // Estados do formulário principal
   const [formData, setFormData] = useState<FormData>({
     aprendiz: '',
@@ -28,6 +32,40 @@ export default function FormularioScreen() {
   // Estados para atividades
   const [atividades, setAtividades] = useState<AtividadeData[]>([]);
   const [mostrarCombobox, setMostrarCombobox] = useState(false);
+  const [loadingAprendiz, setLoadingAprendiz] = useState(false);
+
+  // Carregar dados do aprendiz se ID foi passado via parâmetros
+  const carregarDadosAprendiz = async (aprendizId: string) => {
+    try {
+      setLoadingAprendiz(true);
+      const { data, error } = await aprendizService.buscarPorId(aprendizId);
+      
+      if (error) {
+        console.error('Erro ao carregar dados do aprendiz:', error);
+        Alert.alert('Aviso', 'Não foi possível carregar os dados do aprendiz');
+        return;
+      }
+
+      if (data) {
+        setFormData(prev => ({
+          ...prev,
+          aprendiz: data.nome
+        }));
+      }
+    } catch (error) {
+      console.error('Erro inesperado ao carregar aprendiz:', error);
+      Alert.alert('Erro', 'Erro inesperado ao carregar dados do aprendiz');
+    } finally {
+      setLoadingAprendiz(false);
+    }
+  };
+
+  // Effect para carregar dados do aprendiz quando houver ID nos parâmetros
+  useEffect(() => {
+    if (params.aprendizId && typeof params.aprendizId === 'string') {
+      carregarDadosAprendiz(params.aprendizId);
+    }
+  }, [params.aprendizId]);
 
   // Função para adicionar nova atividade
   const adicionarNovaAtividade = (atividadeSelecionada: string) => {
@@ -256,6 +294,8 @@ export default function FormularioScreen() {
         <DadosIniciais 
           formData={formData}
           onUpdateFormData={updateFormData}
+          aprendizPreenchidoAutomaticamente={!!params.aprendizId}
+          loadingAprendiz={loadingAprendiz}
         />
 
         {/* Gerenciador de Atividades */}

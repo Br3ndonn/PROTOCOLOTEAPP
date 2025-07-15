@@ -176,4 +176,71 @@ export const styles = StyleSheet.create({
     color: '#ffffff',
     marginLeft: 8,
   },
+
+  // Estilos das abas
+  tabContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#f1f5f9',
+    borderRadius: 12,
+    padding: 4,
+    marginHorizontal: 20,
+    marginVertical: 16,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  tabAtiva: {
+    backgroundColor: '#ffffff',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  tabText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#64748b',
+  },
+  tabTextAtiva: {
+    color: '#6366f1',
+    fontWeight: '600',
+  },
+
+  // Estilos para tags
+  tagsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 8,
+  },
+  tag: {
+    backgroundColor: '#e0e7ff',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  tagText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#4338ca',
+  },
+
+  // Estilos para subsecção
+  subsectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#374151',
+    marginTop: 16,
+    marginBottom: 8,
+  },
 });
