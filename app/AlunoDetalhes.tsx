@@ -1,35 +1,125 @@
 import ScreenWrapper from '@/components/shared/ScreenWrapper';
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import { AprendizDisplay, aprendizService, mapAprendizToDisplay } from '@/services/AprendizService';
 import { styles } from '@/styles/AlunoDetalhesStyles';
 import { router, useLocalSearchParams } from 'expo-router';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
-// Interface para os parâmetros recebidos da navegação
-interface AlunoParams {
-  id: string;
-  nome: string;
-  idade: string;
-  horario: string;
-  protocolo: string;
-  status: string;
-}
 
 export default function AlunoDetalhesScreen() {
   // Recebe os parâmetros da navegação
   const params = useLocalSearchParams();
+  const [aprendiz, setAprendiz] = useState<AprendizDisplay | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Carregar dados detalhados do aprendiz
+  const carregarAprendiz = async () => {
+    if (!params.id || typeof params.id !== 'string') {
+      setError('ID do aprendiz não encontrado');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const { data, error: dbError } = await aprendizService.buscarPorId(params.id);
+      
+      if (dbError) {
+        console.error('Erro ao carregar aprendiz:', dbError);
+        setError('Erro ao carregar dados do aprendiz');
+        Alert.alert('Erro', 'Não foi possível carregar os dados do aprendiz');
+        return;
+      }
+
+      if (data) {
+        setAprendiz(mapAprendizToDisplay(data));
+      }
+    } catch (error) {
+      console.error('Erro inesperado:', error);
+      setError('Erro inesperado ao carregar dados');
+      Alert.alert('Erro', 'Erro inesperado ao carregar dados');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    carregarAprendiz();
+  }, [params.id]);
+
+  // Função para formatar data
+  const formatarData = (dataString: string) => {
+    try {
+      const data = new Date(dataString);
+      return data.toLocaleDateString('pt-BR');
+    } catch {
+      return 'Data inválida';
+    }
+  };
 
   const handleNovaAula = () => {
     // Navegar diretamente para o formulário
     router.push('/Formulario');
   };
 
+  if (loading) {
+    return (
+      <ScreenWrapper title="Carregando...">
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color="#6366f1" />
+          <Text style={{ marginTop: 10, color: '#6b7280' }}>Carregando dados do aluno...</Text>
+        </View>
+      </ScreenWrapper>
+    );
+  }
+
+  if (error || !aprendiz) {
+    return (
+      <ScreenWrapper title="Erro">
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text style={{ color: '#ef4444', marginBottom: 20, textAlign: 'center' }}>
+            {error || 'Aprendiz não encontrado'}
+          </Text>
+          <TouchableOpacity 
+            style={{ 
+              backgroundColor: '#6366f1', 
+              paddingHorizontal: 20, 
+              paddingVertical: 10, 
+              borderRadius: 8,
+              marginBottom: 10
+            }}
+            onPress={carregarAprendiz}
+          >
+            <Text style={{ color: 'white' }}>Tentar novamente</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={{ 
+              backgroundColor: '#6b7280', 
+              paddingHorizontal: 20, 
+              paddingVertical: 10, 
+              borderRadius: 8 
+            }}
+            onPress={() => router.back()}
+          >
+            <Text style={{ color: 'white' }}>Voltar</Text>
+          </TouchableOpacity>
+        </View>
+      </ScreenWrapper>
+    );
+  }
+
   return (
-    <ScreenWrapper title={`Detalhes - ${params.nome}`}>
+    <ScreenWrapper title={`Detalhes - ${aprendiz.nome}`}>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Card principal do aluno */}
         <View style={styles.alunoCard}>
@@ -38,14 +128,18 @@ export default function AlunoDetalhesScreen() {
               <IconSymbol name="figure.child" size={32} color="#6366f1" />
             </View>
             <View style={styles.alunoInfo}>
-              <Text style={styles.alunoNome}>{params.nome}</Text>
-              <Text style={styles.alunoIdade}>{params.idade} anos</Text>
+              <Text style={styles.alunoNome}>{aprendiz.nome}</Text>
+              <Text style={styles.alunoIdade}>
+                Data de Nascimento: {formatarData(aprendiz.data_nascimento)}
+              </Text>
             </View>
             <View style={[
               styles.statusBadge,
-              { backgroundColor: params.status === 'ativo' ? '#10b981' : '#ef4444' }
+              { backgroundColor: aprendiz.diagnostico ? '#10b981' : '#f59e0b' }
             ]}>
-              <Text style={styles.statusText}>{params.status}</Text>
+              <Text style={styles.statusText}>
+                {aprendiz.diagnostico ? 'Diagnóstico' : 'Sem Diagnóstico'}
+              </Text>
             </View>
           </View>
         </View>
@@ -56,11 +150,21 @@ export default function AlunoDetalhesScreen() {
           
           <View style={styles.infoItem}>
             <View style={styles.infoIcon}>
+              <IconSymbol name="person.fill" size={20} color="#6366f1" />
+            </View>
+            <View style={styles.infoContent}>
+              <Text style={styles.infoLabel}>Nome Completo</Text>
+              <Text style={styles.infoValue}>{aprendiz.nome}</Text>
+            </View>
+          </View>
+
+          <View style={styles.infoItem}>
+            <View style={styles.infoIcon}>
               <IconSymbol name="calendar" size={20} color="#6366f1" />
             </View>
             <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Horário</Text>
-              <Text style={styles.infoValue}>{params.horario}</Text>
+              <Text style={styles.infoLabel}>Data de Nascimento</Text>
+              <Text style={styles.infoValue}>{formatarData(aprendiz.data_nascimento)}</Text>
             </View>
           </View>
 
@@ -69,27 +173,13 @@ export default function AlunoDetalhesScreen() {
               <IconSymbol name="doc.text" size={20} color="#6366f1" />
             </View>
             <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Protocolo</Text>
-              <Text style={styles.infoValue}>{params.protocolo}</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Estatísticas rápidas */}
-        <View style={styles.statsSection}>
-          <Text style={styles.sectionTitle}>Estatísticas</Text>
-          <View style={styles.statsContainer}>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>12</Text>
-              <Text style={styles.statLabel}>Aulas Realizadas</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>85%</Text>
-              <Text style={styles.statLabel}>Progresso</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>3</Text>
-              <Text style={styles.statLabel}>Esta Semana</Text>
+              <Text style={styles.infoLabel}>Status do Diagnóstico</Text>
+              <Text style={[
+                styles.infoValue,
+                { color: aprendiz.diagnostico ? '#10b981' : '#f59e0b' }
+              ]}>
+                {aprendiz.diagnostico ? 'Diagnóstico confirmado' : 'Aguardando diagnóstico'}
+              </Text>
             </View>
           </View>
         </View>
