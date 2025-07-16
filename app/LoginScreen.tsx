@@ -1,4 +1,4 @@
-import { signInWithEmail, signUpWithEmailAndRetry } from '@/components/Auth';
+import { signInWithEmail, signUpWithEmail } from '@/components/Auth';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -65,7 +65,7 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      const { data, error } = await signUpWithEmailAndRetry(email, password, nomeCompleto.trim());
+      const { data, error } = await signUpWithEmail(email, password, nomeCompleto.trim(), false);
       
       if (error) {
         Alert.alert('Erro no Cadastro', error.message);
@@ -201,6 +201,19 @@ export default function LoginScreen() {
               {isSignUp ? 'Já tem uma conta? Entrar' : 'Criar Conta'}
             </Text>
           </TouchableOpacity>
+
+          {/* Novo link para tela de cadastro separada */}
+          {!isSignUp && (
+            <TouchableOpacity
+              style={{ marginTop: 15, alignItems: 'center' }}
+              onPress={() => router.push('/CadastroScreen')}
+              disabled={loading}
+            >
+              <Text style={[styles.linkText, { fontSize: 14 }]}>
+                Ou cadastre-se em uma tela dedicada
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

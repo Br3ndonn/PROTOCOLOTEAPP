@@ -57,7 +57,7 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
-
+docs/
 app-example
 test.bat
 .env

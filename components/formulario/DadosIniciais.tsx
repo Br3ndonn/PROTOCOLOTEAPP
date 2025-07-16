@@ -54,22 +54,6 @@ const DadosIniciais: React.FC<DadosIniciaisProps> = ({
       </View>
       
       <FormInput
-        label="Responsável"
-        value={formData.responsavel}
-        onChangeText={(text) => onUpdateFormData('responsavel', text)}
-        placeholder="Nome do responsável"
-        required
-      />
-      
-      <FormInput
-        label="Data / Horário"
-        value={formData.data}
-        onChangeText={(text) => onUpdateFormData('data', text)}
-        placeholder="DD/MM/AAAA - HH:MM"
-        required
-      />
-      
-      <FormInput
         label="Local"
         value={formData.local}
         onChangeText={(text) => onUpdateFormData('local', text)}

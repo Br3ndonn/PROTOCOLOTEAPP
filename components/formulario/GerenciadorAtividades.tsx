@@ -10,6 +10,7 @@ interface GerenciadorAtividadesProps {
   atividades: AtividadeData[];
   mostrarCombobox: boolean;
   completudeOptions: CompletudeOption[];
+  aprendizId?: string; // ID do aprendiz para carregar atividades do planejamento
   onNovaAtividade: () => void;
   onSelecionarAtividade: (atividade: string) => void;
   onCancelarCombobox: () => void;
@@ -27,6 +28,7 @@ const GerenciadorAtividades: React.FC<GerenciadorAtividadesProps> = ({
   atividades,
   mostrarCombobox,
   completudeOptions,
+  aprendizId,
   onNovaAtividade,
   onSelecionarAtividade,
   onCancelarCombobox,
@@ -58,6 +60,7 @@ const GerenciadorAtividades: React.FC<GerenciadorAtividadesProps> = ({
         visible={mostrarCombobox}
         onSelectAtividade={onSelecionarAtividade}
         onCancel={onCancelarCombobox}
+        aprendizId={aprendizId}
       />
 
       {/* Lista de atividades adicionadas */}

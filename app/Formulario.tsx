@@ -6,7 +6,10 @@ import ObservacoesSection from '@/components/formulario/ObservacoesSection';
 import { AtividadeData, FormData } from '@/components/formulario/types';
 import ScreenWrapper from '@/components/shared/ScreenWrapper';
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import { useAuth } from '@/contexts/AuthContext';
 import { aprendizService } from '@/services/AprendizService';
+import { aulaService } from '@/services/AulaService';
+import { planejamentoIntervencaoService } from '@/services/PlanejamentoIntervencaoService';
 import { styles } from '@/styles/FormularioStyles';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -19,12 +22,11 @@ import {
 
 export default function FormularioScreen() {
   const params = useLocalSearchParams();
+  const { professor } = useAuth();
   
   // Estados do formulário principal
   const [formData, setFormData] = useState<FormData>({
     aprendiz: '',
-    responsavel: '',
-    data: '',
     local: '',
     observacoes: ''
   });
@@ -33,6 +35,7 @@ export default function FormularioScreen() {
   const [atividades, setAtividades] = useState<AtividadeData[]>([]);
   const [mostrarCombobox, setMostrarCombobox] = useState(false);
   const [loadingAprendiz, setLoadingAprendiz] = useState(false);
+  const [aprendizId, setAprendizId] = useState<string | null>(null);
 
   // Carregar dados do aprendiz se ID foi passado via parâmetros
   const carregarDadosAprendiz = async (aprendizId: string) => {
@@ -51,6 +54,7 @@ export default function FormularioScreen() {
           ...prev,
           aprendiz: data.nome
         }));
+        setAprendizId(aprendizId);
       }
     } catch (error) {
       console.error('Erro inesperado ao carregar aprendiz:', error);
@@ -185,10 +189,10 @@ export default function FormularioScreen() {
   };
 
   // Função para salvar o formulário
-  const handleSalvar = () => {
+  const handleSalvar = async () => {
     // Validação básica
-    if (!formData.aprendiz || !formData.responsavel || !formData.data) {
-      Alert.alert('Erro', 'Por favor, preencha os campos obrigatórios (Aprendiz, Responsável e Data)');
+    if (!formData.aprendiz) {
+      Alert.alert('Erro', 'Por favor, preencha o campo obrigatório (Aprendiz)');
       return;
     }
 
@@ -199,11 +203,89 @@ export default function FormularioScreen() {
       return;
     }
 
-    Alert.alert(
-      'Formulário Salvo',
-      `Aula salva com sucesso! Total de atividades: ${atividadesSalvas.length}`,
-      [{ text: 'OK' }]
-    );
+    // Validar se o professor está autenticado
+    if (!professor) {
+      Alert.alert('Erro', 'Usuário não autenticado. Faça login novamente.');
+      return;
+    }
+
+    // Validar se temos o ID do aprendiz
+    if (!aprendizId) {
+      Alert.alert('Erro', 'ID do aprendiz não encontrado. Selecione um aprendiz válido.');
+      return;
+    }
+
+    try {
+      // Mostrar loading
+      Alert.alert('Salvando...', 'Registrando aula no sistema...');
+
+      // 1. Buscar ou criar planejamento de intervenção
+      const { data: planejamento, error: errorPlanejamento } = 
+        await planejamentoIntervencaoService.buscarOuCriar(
+          professor.id_professor,
+          aprendizId
+        );
+
+      if (errorPlanejamento || !planejamento) {
+        console.error('Erro ao buscar/criar planejamento:', errorPlanejamento);
+        Alert.alert('Erro', 'Não foi possível criar o planejamento de intervenção');
+        return;
+      }
+
+      // 2. Preparar dados das atividades para salvar
+      const dadosAtividades = atividadesSalvas.map(atividade => ({
+        atividade: atividade.atividade,
+        meta: atividade.meta,
+        completude: atividade.completude,
+        somatorio: parseInt(atividade.somatorio) || 0,
+        tentativas: atividade.tentativas,
+        houveIntercorrencia: atividade.houveIntercorrencia,
+        intercorrencias: atividade.intercorrencias
+      }));
+
+      // 3. Criar registro da aula
+      const { data: aula, error: errorAula } = await aulaService.criar({
+        id_professor: professor.id_professor,
+        data_aula: new Date().toISOString(), // Data atual automaticamente
+        id_planejamento_intervencao: planejamento.id_planejamento_intervencao,
+        observacoes: formData.observacoes,
+        local: formData.local,
+        responsavel: professor.nome, // Nome do professor como responsável
+        atividades: dadosAtividades
+      });
+
+      if (errorAula || !aula) {
+        console.error('Erro ao criar aula:', errorAula);
+        Alert.alert('Erro', 'Não foi possível salvar a aula no sistema');
+        return;
+      }
+
+      // 4. Sucesso
+      const dataAtual = new Date().toLocaleString('pt-BR');
+      Alert.alert(
+        'Sucesso!',
+        `Aula registrada com sucesso!\n\nTotal de atividades: ${atividadesSalvas.length}\nData: ${dataAtual}\nAprendiz: ${formData.aprendiz}`,
+        [
+          { 
+            text: 'OK', 
+            onPress: () => {
+              // Opcional: limpar formulário após salvar
+              // handleLimpar();
+            }
+          }
+        ]
+      );
+
+      console.log('Aula salva com sucesso:', {
+        aulaId: aula.id_aula,
+        planejamentoId: planejamento.id_planejamento_intervencao,
+        totalAtividades: atividadesSalvas.length
+      });
+
+    } catch (error) {
+      console.error('Erro inesperado ao salvar aula:', error);
+      Alert.alert('Erro', 'Erro inesperado ao salvar a aula. Tente novamente.');
+    }
   };
 
   // Função para limpar formulário
@@ -219,8 +301,6 @@ export default function FormularioScreen() {
           onPress: () => {
             setFormData({
               aprendiz: '',
-              responsavel: '',
-              data: '',
               local: '',
               observacoes: ''
             });
@@ -303,6 +383,7 @@ export default function FormularioScreen() {
           atividades={atividades}
           mostrarCombobox={mostrarCombobox}
           completudeOptions={COMPLETUDE_OPTIONS}
+          aprendizId={aprendizId || undefined}
           onNovaAtividade={() => setMostrarCombobox(true)}
           onSelecionarAtividade={adicionarNovaAtividade}
           onCancelarCombobox={() => setMostrarCombobox(false)}

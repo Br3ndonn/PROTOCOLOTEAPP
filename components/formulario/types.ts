@@ -1,8 +1,6 @@
 // Interfaces para tipagem do formulário
 export interface FormData {
   aprendiz: string;
-  responsavel: string;
-  data: string;
   local: string;
   observacoes: string;
 }
