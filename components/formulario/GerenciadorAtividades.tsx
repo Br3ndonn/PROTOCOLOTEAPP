@@ -1,13 +1,13 @@
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { styles } from '@/styles/FormularioStyles';
 import React from 'react';
-import { Text, TouchableOpacity, View, Alert } from 'react-native';
+import { Alert, Text, TouchableOpacity, View } from 'react-native';
+import { useAtividadesTemporarias } from '../../hooks/useAtividadesTemporarias';
+import { AtividadeParaSelecao } from '../../services/PlanejamentoAtividadesService';
+import { converterAtividadeParaBanco, validarAtividadeParaSalvar } from '../../utils/atividadeConverter';
 import AtividadeContainer from './AtividadeContainer';
 import ComboboxAtividades from './ComboboxAtividades';
 import { AtividadeData, CompletudeOption } from './types';
-import { validarAtividadeParaSalvar, converterAtividadeParaBanco } from '../../utils/atividadeConverter';
-import { useAtividadesTemporarias } from '../../hooks/useAtividadesTemporarias';
-import { AtividadeParaSelecao } from '../../services/PlanejamentoAtividadesService';
 
 interface GerenciadorAtividadesProps {
   atividades: AtividadeData[];

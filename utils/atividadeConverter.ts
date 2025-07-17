@@ -1,5 +1,5 @@
 import { AtividadeData, COMPLETUDE_MAPPING } from '../components/formulario/types';
-import { CriarProgressoAtividadeInput, Completude } from '../services/ProgressoAtividadeService';
+import { CriarProgressoAtividadeInput } from '../services/ProgressoAtividadeService';
 
 /**
  * Converte dados de atividade do formulário para o formato do banco de dados

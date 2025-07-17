@@ -1,10 +1,10 @@
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { styles } from '@/styles/FormularioStyles';
 import React, { useState } from 'react';
-import { Text, TouchableOpacity, View, Alert, ActivityIndicator, ScrollView } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useAtividadesTemporarias } from '../../hooks/useAtividadesTemporarias';
 import { aulaService, CriarAulaInput } from '../../services/AulaService';
-import { Completude, COMPLETUDE_REVERSE_MAPPING } from '../../services/ProgressoAtividadeService';
+import { COMPLETUDE_REVERSE_MAPPING } from '../../services/ProgressoAtividadeService';
 
 interface FinalizarAulaProps {
   dadosAula: Omit<CriarAulaInput, 'atividades'>;

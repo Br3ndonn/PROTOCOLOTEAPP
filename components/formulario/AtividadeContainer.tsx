@@ -2,7 +2,6 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import { styles } from '@/styles/FormularioStyles';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import FormInput from './FormInput';
 import IntercorrenciasSection from './IntercorrenciasSection';
 import SomatorioSection from './SomatorioSection';
 import TentativasGrid from './TentativasGrid';

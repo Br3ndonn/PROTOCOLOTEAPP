@@ -1,5 +1,5 @@
 import { supabase } from '../utils/supabase';
-import { progressoAtividadeService, CriarProgressoAtividadeInput } from './ProgressoAtividadeService';
+import { CriarProgressoAtividadeInput, progressoAtividadeService } from './ProgressoAtividadeService';
 
 export interface AulaData {
   id_aula: number;

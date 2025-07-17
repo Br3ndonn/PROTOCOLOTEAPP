@@ -16,10 +16,10 @@ import { converterAtividadesParaBanco } from '@/utils/atividadeConverter';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  Alert,
-  ScrollView,
-  Text,
-  View
+    Alert,
+    ScrollView,
+    Text,
+    View
 } from 'react-native';
 
 export default function FormularioScreen() {

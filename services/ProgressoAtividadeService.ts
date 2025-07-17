@@ -5,7 +5,7 @@ export enum Completude {
   NAO_REALIZOU = 'Não realizou',
   POUCAS = 'Poucas',
   METADE = 'Metade',
-  QUASE_TUDO = 'Quase tudo',
+  QUASE_TUDO = 'Quase Tudo',
   TUDO = 'Tudo'
 }
 

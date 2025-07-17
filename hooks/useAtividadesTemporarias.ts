@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { CriarProgressoAtividadeInput, Completude, progressoAtividadeService } from '../services/ProgressoAtividadeService';
+import { useCallback, useState } from 'react';
+import { Completude, CriarProgressoAtividadeInput, progressoAtividadeService } from '../services/ProgressoAtividadeService';
 
 export interface AtividadeTemporaria extends CriarProgressoAtividadeInput {
   id_temporario: string; // ID temporário para controle local
