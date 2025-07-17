@@ -1,4 +1,5 @@
 import { supabase } from '../utils/supabase';
+import { progressoAtividadeService, CriarProgressoAtividadeInput } from './ProgressoAtividadeService';
 
 export interface AulaData {
   id_aula: number;
@@ -14,7 +15,7 @@ export interface CriarAulaInput {
   observacoes?: string;
   local?: string;
   responsavel?: string;
-  atividades?: any[]; // Array de atividades realizadas na aula
+  atividades?: CriarProgressoAtividadeInput[]; // Array de atividades realizadas na aula
 }
 
 class AulaService {
@@ -28,12 +29,6 @@ class AulaService {
       };
 
       console.log('Criando aula com dados:', aulaData);
-      console.log('Dados adicionais (para futura implementação):', {
-        observacoes: dados.observacoes,
-        local: dados.local,
-        responsavel: dados.responsavel,
-        atividades: dados.atividades
-      });
 
       const { data, error } = await supabase
         .from('Aula')
@@ -47,6 +42,28 @@ class AulaService {
       }
 
       console.log('Aula criada com sucesso:', data);
+
+      // Se há atividades para salvar, salva após criar a aula
+      if (dados.atividades && dados.atividades.length > 0) {
+        console.log('Salvando atividades da aula:', dados.atividades);
+        const { error: atividadesError } = await progressoAtividadeService.salvarMultiplos(
+          data.id_aula,
+          dados.atividades
+        );
+
+        if (atividadesError) {
+          console.error('Erro ao salvar atividades, mas aula foi criada:', atividadesError);
+          // Aula já foi criada, retorna sucesso mas com aviso
+          return { 
+            data, 
+            error: { 
+              message: 'Aula criada mas houve erro ao salvar algumas atividades',
+              originalError: atividadesError
+            }
+          };
+        }
+      }
+
       return { data, error: null };
     } catch (error) {
       console.error('Erro inesperado ao criar aula:', error);
@@ -140,6 +157,63 @@ class AulaService {
     } catch (error) {
       console.error('Erro inesperado ao contar aulas:', error);
       return { count: 0, error };
+    }
+  }
+
+  // Adicionar atividades a uma aula existente
+  async adicionarAtividades(id_aula: number, atividades: CriarProgressoAtividadeInput[]): Promise<{ success: boolean; error: any }> {
+    try {
+      if (!atividades || atividades.length === 0) {
+        return { success: true, error: null };
+      }
+
+      const { data, error } = await progressoAtividadeService.salvarMultiplos(id_aula, atividades);
+
+      if (error) {
+        console.error('Erro ao adicionar atividades à aula:', error);
+        return { success: false, error };
+      }
+
+      console.log('Atividades adicionadas com sucesso à aula:', data);
+      return { success: true, error: null };
+    } catch (error) {
+      console.error('Erro inesperado ao adicionar atividades:', error);
+      return { success: false, error };
+    }
+  }
+
+  // Buscar aula com suas atividades/progressos
+  async buscarComAtividades(id_aula: number): Promise<{ data: any | null; error: any }> {
+    try {
+      // Buscar dados da aula
+      const { data: aulaData, error: aulaError } = await this.buscarPorId(id_aula);
+      
+      if (aulaError || !aulaData) {
+        return { data: null, error: aulaError || 'Aula não encontrada' };
+      }
+
+      // Buscar atividades/progressos da aula
+      const { data: progressos, error: progressosError } = await progressoAtividadeService.buscarComDetalhes(id_aula);
+
+      if (progressosError) {
+        console.error('Erro ao buscar progressos da aula:', progressosError);
+        // Retorna aula mesmo sem progressos
+        return { 
+          data: { ...aulaData, atividades: [] }, 
+          error: null 
+        };
+      }
+
+      return { 
+        data: { 
+          ...aulaData, 
+          atividades: progressos || [] 
+        }, 
+        error: null 
+      };
+    } catch (error) {
+      console.error('Erro inesperado ao buscar aula com atividades:', error);
+      return { data: null, error };
     }
   }
 }

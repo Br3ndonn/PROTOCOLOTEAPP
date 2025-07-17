@@ -9,8 +9,10 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useAuth } from '@/contexts/AuthContext';
 import { aprendizService } from '@/services/AprendizService';
 import { aulaService } from '@/services/AulaService';
+import { AtividadeParaSelecao } from '@/services/PlanejamentoAtividadesService';
 import { planejamentoIntervencaoService } from '@/services/PlanejamentoIntervencaoService';
 import { styles } from '@/styles/FormularioStyles';
+import { converterAtividadesParaBanco } from '@/utils/atividadeConverter';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -72,18 +74,20 @@ export default function FormularioScreen() {
   }, [params.aprendizId]);
 
   // Função para adicionar nova atividade
-  const adicionarNovaAtividade = (atividadeSelecionada: string) => {
+  const adicionarNovaAtividade = (atividadeSelecionada: AtividadeParaSelecao) => {
     const novaAtividade: AtividadeData = {
       id: Date.now().toString(),
-      atividade: atividadeSelecionada,
-      meta: '',
+      atividade: atividadeSelecionada.displayText,
+      meta: '', // Mantém o campo mas não é obrigatório
       completude: '',
       somatorio: '0',
       tentativas: [...TENTATIVAS_PADRAO],
       houveIntercorrencia: false,
       intercorrencias: [...INTERCORRENCIAS_PADRAO],
       minimizada: false,
-      salva: false
+      salva: false,
+      // Adicionar o ID do planejamento de atividades
+      id_planejamento_atividades: parseInt(atividadeSelecionada.id)
     };
     
     setAtividades([...atividades, novaAtividade]);
@@ -135,11 +139,6 @@ export default function FormularioScreen() {
   const salvarAtividade = (atividadeId: string) => {
     const atividade = atividades.find(a => a.id === atividadeId);
     if (!atividade) return;
-
-    if (!atividade.meta) {
-      Alert.alert('Erro', 'Por favor, preencha a meta da atividade');
-      return;
-    }
 
     setAtividades(prev => prev.map(a => 
       a.id === atividadeId 
@@ -233,15 +232,7 @@ export default function FormularioScreen() {
       }
 
       // 2. Preparar dados das atividades para salvar
-      const dadosAtividades = atividadesSalvas.map(atividade => ({
-        atividade: atividade.atividade,
-        meta: atividade.meta,
-        completude: atividade.completude,
-        somatorio: parseInt(atividade.somatorio) || 0,
-        tentativas: atividade.tentativas,
-        houveIntercorrencia: atividade.houveIntercorrencia,
-        intercorrencias: atividade.intercorrencias
-      }));
+      const dadosAtividades = converterAtividadesParaBanco(atividadesSalvas);
 
       // 3. Criar registro da aula
       const { data: aula, error: errorAula } = await aulaService.criar({

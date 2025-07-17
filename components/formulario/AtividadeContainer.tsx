@@ -64,16 +64,6 @@ const AtividadeContainer: React.FC<AtividadeContainerProps> = ({
       {/* Conteúdo da atividade (visível apenas se não estiver minimizada) */}
       {!atividade.minimizada && (
         <View style={styles.atividadeContent}>
-          {/* Meta */}
-          <FormInput
-            label="Meta"
-            value={atividade.meta}
-            onChangeText={(text) => onUpdateData('meta', text)}
-            placeholder="Meta estabelecida para esta atividade"
-            multiline
-            required
-          />
-
           {/* Completude do Planejado */}
           <View style={styles.completudeSection}>
             <Text style={styles.completudeTitle}>Completude do Planejado</Text>

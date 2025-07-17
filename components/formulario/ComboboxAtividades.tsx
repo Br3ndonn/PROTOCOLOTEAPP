@@ -5,7 +5,7 @@ import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'rea
 
 interface ComboboxAtividadesProps {
   visible: boolean;
-  onSelectAtividade: (atividade: string) => void;
+  onSelectAtividade: (atividade: AtividadeParaSelecao) => void;
   onCancel: () => void;
   aprendizId?: string; // ID do aprendiz para carregar atividades do planejamento
 }
@@ -103,7 +103,7 @@ const ComboboxAtividades: React.FC<ComboboxAtividadesProps> = ({
             <TouchableOpacity
               key={atividade.id}
               style={styles.comboboxItem}
-              onPress={() => onSelectAtividade(atividade.displayText)}
+              onPress={() => onSelectAtividade(atividade)}
             >
               <Text style={styles.comboboxItemCodigo}>
                 {atividade.sigla} - {atividade.numero}

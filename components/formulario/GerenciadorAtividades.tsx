@@ -1,10 +1,13 @@
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { styles } from '@/styles/FormularioStyles';
 import React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View, Alert } from 'react-native';
 import AtividadeContainer from './AtividadeContainer';
 import ComboboxAtividades from './ComboboxAtividades';
 import { AtividadeData, CompletudeOption } from './types';
+import { validarAtividadeParaSalvar, converterAtividadeParaBanco } from '../../utils/atividadeConverter';
+import { useAtividadesTemporarias } from '../../hooks/useAtividadesTemporarias';
+import { AtividadeParaSelecao } from '../../services/PlanejamentoAtividadesService';
 
 interface GerenciadorAtividadesProps {
   atividades: AtividadeData[];
@@ -12,7 +15,7 @@ interface GerenciadorAtividadesProps {
   completudeOptions: CompletudeOption[];
   aprendizId?: string; // ID do aprendiz para carregar atividades do planejamento
   onNovaAtividade: () => void;
-  onSelecionarAtividade: (atividade: string) => void;
+  onSelecionarAtividade: (atividade: AtividadeParaSelecao) => void;
   onCancelarCombobox: () => void;
   onUpdateData: (atividadeId: string, field: keyof AtividadeData, value: any) => void;
   onUpdatePontuacao: (atividadeId: string, tentativaId: string, value: number) => void;
@@ -22,6 +25,8 @@ interface GerenciadorAtividadesProps {
   onCalcularSomatorio: (atividadeId: string) => void;
   onDesfazer: (atividadeId: string) => void;
   onExcluir: (atividadeId: string) => void;
+  // Nova prop para integração com sistema temporário
+  onSalvarAtividadeTemporaria?: (atividade: AtividadeData) => void;
 }
 
 const GerenciadorAtividades: React.FC<GerenciadorAtividadesProps> = ({
@@ -39,8 +44,52 @@ const GerenciadorAtividades: React.FC<GerenciadorAtividadesProps> = ({
   onToggleMinimizar,
   onCalcularSomatorio,
   onDesfazer,
-  onExcluir
+  onExcluir,
+  onSalvarAtividadeTemporaria
 }) => {
+  // Hook para gerenciar atividades temporárias
+  const { salvarAtividadeLocal } = useAtividadesTemporarias();
+
+  // Função para lidar com o salvamento de atividade
+  const handleSalvarAtividade = async (atividadeId: string) => {
+    const atividade = atividades.find(a => a.id === atividadeId);
+    if (!atividade) {
+      Alert.alert('Erro', 'Atividade não encontrada');
+      return;
+    }
+
+    // Validar atividade antes de salvar
+    const { valid, error } = validarAtividadeParaSalvar(atividade);
+    if (!valid) {
+      Alert.alert('Erro de Validação', error || 'Dados da atividade são inválidos');
+      return;
+    }
+
+    try {
+      // Se existe callback customizado, usar ele
+      if (onSalvarAtividadeTemporaria) {
+        onSalvarAtividadeTemporaria(atividade);
+      } else {
+        // Converter dados da atividade para formato do banco
+        const dadosBanco = converterAtividadeParaBanco(atividade);
+        if (!dadosBanco) {
+          Alert.alert('Erro', 'Não foi possível preparar os dados da atividade para salvamento');
+          return;
+        }
+
+        // Salvar localmente (temporariamente)
+        const { success } = await salvarAtividadeLocal(dadosBanco);
+        if (success) {
+          // Marcar atividade como salva na interface
+          onSalvar(atividadeId);
+          Alert.alert('Sucesso', 'Atividade salva temporariamente. Será persistida quando a aula for finalizada.');
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao salvar atividade:', error);
+      Alert.alert('Erro', 'Ocorreu um erro ao salvar a atividade');
+    }
+  };
   return (
     <View style={styles.section}>
       {/* Header com botão Nova Atividade */}
@@ -71,7 +120,7 @@ const GerenciadorAtividades: React.FC<GerenciadorAtividadesProps> = ({
           onUpdateData={(field, value) => onUpdateData(atividade.id, field, value)}
           onUpdatePontuacao={(tentativaId, value) => onUpdatePontuacao(atividade.id, tentativaId, value)}
           onUpdateIntercorrencia={(intercorrenciaId, field, value) => onUpdateIntercorrencia(atividade.id, intercorrenciaId, field, value)}
-          onSalvar={() => onSalvar(atividade.id)}
+          onSalvar={() => handleSalvarAtividade(atividade.id)}
           onToggleMinimizar={() => onToggleMinimizar(atividade.id)}
           onCalcularSomatorio={() => onCalcularSomatorio(atividade.id)}
           onDesfazer={() => onDesfazer(atividade.id)}
