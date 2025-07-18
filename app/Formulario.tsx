@@ -7,6 +7,7 @@ import { AtividadeData, FormData } from '@/components/formulario/types';
 import ScreenWrapper from '@/components/shared/ScreenWrapper';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useAuth } from '@/contexts/AuthContext';
+import { useIntercorrenciasTemporarias } from '@/hooks/useIntercorrenciasTemporarias';
 import { aprendizService } from '@/services/AprendizService';
 import { aulaService } from '@/services/AulaService';
 import { AtividadeParaSelecao } from '@/services/PlanejamentoAtividadesService';
@@ -16,15 +17,23 @@ import { converterAtividadesParaBanco } from '@/utils/atividadeConverter';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    Alert,
-    ScrollView,
-    Text,
-    View
+  Alert,
+  ScrollView,
+  Text,
+  View
 } from 'react-native';
 
 export default function FormularioScreen() {
   const params = useLocalSearchParams();
   const { professor } = useAuth();
+  
+  // Hook para gerenciar intercorrências temporárias
+  const { 
+    intercorrencias,
+    adicionarIntercorrencia,
+    prepararParaSalvamento: prepararIntercorrenciasParaSalvamento,
+    limparIntercorrencias
+  } = useIntercorrenciasTemporarias();
   
   // Estados do formulário principal
   const [formData, setFormData] = useState<FormData>({
@@ -113,22 +122,6 @@ export default function FormularioScreen() {
               tentativa.id === tentativaId 
                 ? { ...tentativa, pontuacao: value }
                 : tentativa
-            )
-          }
-        : atividade
-    ));
-  };
-
-  // Função para atualizar intercorrência de uma atividade
-  const updateAtividadeIntercorrencia = (atividadeId: string, intercorrenciaId: string, field: 'selecionada' | 'frequencia' | 'intensidade', value: boolean | number) => {
-    setAtividades(prev => prev.map(atividade => 
-      atividade.id === atividadeId 
-        ? {
-            ...atividade,
-            intercorrencias: atividade.intercorrencias.map(intercorrencia => 
-              intercorrencia.id === intercorrenciaId 
-                ? { ...intercorrencia, [field]: value }
-                : intercorrencia
             )
           }
         : atividade
@@ -234,6 +227,17 @@ export default function FormularioScreen() {
       // 2. Preparar dados das atividades para salvar
       const dadosAtividades = converterAtividadesParaBanco(atividadesSalvas);
 
+      // 2.1. Preparar dados das intercorrências para salvar
+      const dadosIntercorrencias = intercorrencias.length > 0 
+        ? prepararIntercorrenciasParaSalvamento(0) // id_aula será adicionado pelo service
+        : [];
+
+      console.log('=== LOG INTERCORRÊNCIAS - FORMULÁRIO ===');
+      console.log('Total de intercorrências temporárias:', intercorrencias.length);
+      console.log('Intercorrências temporárias:', intercorrencias);
+      console.log('Dados preparados para salvamento:', dadosIntercorrencias);
+      console.log('=======================================');
+
       // 3. Criar registro da aula
       const { data: aula, error: errorAula } = await aulaService.criar({
         id_professor: professor.id_professor,
@@ -242,7 +246,8 @@ export default function FormularioScreen() {
         observacoes: formData.observacoes,
         local: formData.local,
         responsavel: professor.nome, // Nome do professor como responsável
-        atividades: dadosAtividades
+        atividades: dadosAtividades,
+        intercorrencias: dadosIntercorrencias
       });
 
       if (errorAula || !aula) {
@@ -251,15 +256,28 @@ export default function FormularioScreen() {
         return;
       }
 
+      console.log('=== LOG FINAL - FORMULÁRIO ===');
+      console.log('Aula criada com sucesso. Verificando se intercorrências foram salvas...');
+      console.log('ID da aula criada:', aula.id_aula);
+      console.log('Número de intercorrências enviadas:', dadosIntercorrencias.length);
+      if (errorAula && errorAula.message && errorAula.message.includes('intercorrências')) {
+        console.warn('ATENÇÃO: Houve problema com intercorrências:', errorAula);
+      } else {
+        console.log('Processo de salvamento de intercorrências concluído sem erros reportados');
+      }
+      console.log('==============================');
+
       // 4. Sucesso
       const dataAtual = new Date().toLocaleString('pt-BR');
       Alert.alert(
         'Sucesso!',
-        `Aula registrada com sucesso!\n\nTotal de atividades: ${atividadesSalvas.length}\nData: ${dataAtual}\nAprendiz: ${formData.aprendiz}`,
+        `Aula registrada com sucesso!\n\nTotal de atividades: ${atividadesSalvas.length}\nTotal de intercorrências: ${intercorrencias.length}\nData: ${dataAtual}\nAprendiz: ${formData.aprendiz}`,
         [
           { 
             text: 'OK', 
             onPress: () => {
+              // Limpar intercorrências após salvar
+              limparIntercorrencias();
               // Opcional: limpar formulário após salvar
               // handleLimpar();
             }
@@ -297,6 +315,7 @@ export default function FormularioScreen() {
             });
             setAtividades([]);
             setMostrarCombobox(false);
+            limparIntercorrencias(); // Limpar intercorrências temporárias
           }
         }
       ]
@@ -380,12 +399,12 @@ export default function FormularioScreen() {
           onCancelarCombobox={() => setMostrarCombobox(false)}
           onUpdateData={updateAtividadeData}
           onUpdatePontuacao={updateAtividadePontuacao}
-          onUpdateIntercorrencia={updateAtividadeIntercorrencia}
           onSalvar={salvarAtividade}
           onToggleMinimizar={toggleMinimizarAtividade}
           onCalcularSomatorio={calcularSomatorioAtividade}
           onDesfazer={desfazerAtividade}
           onExcluir={excluirAtividade}
+          adicionarIntercorrencia={adicionarIntercorrencia}
         />
 
         {/* Observações */}

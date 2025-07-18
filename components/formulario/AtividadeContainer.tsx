@@ -9,28 +9,31 @@ import { AtividadeData, CompletudeOption } from './types';
 
 interface AtividadeContainerProps {
   atividade: AtividadeData;
+  aprendizId?: string; // ID do aprendiz para as intercorrências
   onUpdateData: (field: keyof AtividadeData, value: any) => void;
   onUpdatePontuacao: (tentativaId: string, value: number) => void;
-  onUpdateIntercorrencia: (intercorrenciaId: string, field: 'selecionada' | 'frequencia' | 'intensidade', value: boolean | number) => void;
   onSalvar: () => void;
   onToggleMinimizar: () => void;
   onCalcularSomatorio: () => void;
   onDesfazer: () => void;
   onExcluir: () => void;
   completudeOptions: CompletudeOption[];
+  // Props para integrar com o hook global de intercorrências
+  adicionarIntercorrencia?: (intercorrencia: any) => string;
 }
 
 const AtividadeContainer: React.FC<AtividadeContainerProps> = ({
   atividade,
+  aprendizId,
   onUpdateData,
   onUpdatePontuacao,
-  onUpdateIntercorrencia,
   onSalvar,
   onToggleMinimizar,
   onCalcularSomatorio,
   onDesfazer,
   onExcluir,
-  completudeOptions
+  completudeOptions,
+  adicionarIntercorrencia
 }) => {
   return (
     <View style={[
@@ -95,10 +98,13 @@ const AtividadeContainer: React.FC<AtividadeContainerProps> = ({
 
           {/* Intercorrências */}
           <IntercorrenciasSection
-            houveIntercorrencia={atividade.houveIntercorrencia}
-            intercorrencias={atividade.intercorrencias}
-            onToggleIntercorrencia={() => onUpdateData('houveIntercorrencia', !atividade.houveIntercorrencia)}
-            onUpdateIntercorrencia={onUpdateIntercorrencia}
+            aprendizId={aprendizId || "temp_aprendiz"} // Usa o ID real ou um temporário
+            atividadeId={atividade.id || `atividade_${Date.now()}`}
+            adicionarIntercorrencia={adicionarIntercorrencia}
+            onIntercorrenciasChange={(hasIntercorrencias) => {
+              // Callback opcional para notificar mudanças de estado
+              console.log('Intercorrências mudaram para atividade:', atividade.id, hasIntercorrencias);
+            }}
           />
 
           {/* Somatório */}

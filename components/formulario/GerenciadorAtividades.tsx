@@ -19,7 +19,6 @@ interface GerenciadorAtividadesProps {
   onCancelarCombobox: () => void;
   onUpdateData: (atividadeId: string, field: keyof AtividadeData, value: any) => void;
   onUpdatePontuacao: (atividadeId: string, tentativaId: string, value: number) => void;
-  onUpdateIntercorrencia: (atividadeId: string, intercorrenciaId: string, field: 'selecionada' | 'frequencia' | 'intensidade', value: boolean | number) => void;
   onSalvar: (atividadeId: string) => void;
   onToggleMinimizar: (atividadeId: string) => void;
   onCalcularSomatorio: (atividadeId: string) => void;
@@ -27,6 +26,8 @@ interface GerenciadorAtividadesProps {
   onExcluir: (atividadeId: string) => void;
   // Nova prop para integração com sistema temporário
   onSalvarAtividadeTemporaria?: (atividade: AtividadeData) => void;
+  // Props para integrar com o hook global de intercorrências
+  adicionarIntercorrencia?: (intercorrencia: any) => string;
 }
 
 const GerenciadorAtividades: React.FC<GerenciadorAtividadesProps> = ({
@@ -39,13 +40,13 @@ const GerenciadorAtividades: React.FC<GerenciadorAtividadesProps> = ({
   onCancelarCombobox,
   onUpdateData,
   onUpdatePontuacao,
-  onUpdateIntercorrencia,
   onSalvar,
   onToggleMinimizar,
   onCalcularSomatorio,
   onDesfazer,
   onExcluir,
-  onSalvarAtividadeTemporaria
+  onSalvarAtividadeTemporaria,
+  adicionarIntercorrencia
 }) => {
   // Hook para gerenciar atividades temporárias
   const { salvarAtividadeLocal } = useAtividadesTemporarias();
@@ -117,15 +118,16 @@ const GerenciadorAtividades: React.FC<GerenciadorAtividadesProps> = ({
         <AtividadeContainer 
           key={atividade.id}
           atividade={atividade}
+          aprendizId={aprendizId}
           onUpdateData={(field, value) => onUpdateData(atividade.id, field, value)}
           onUpdatePontuacao={(tentativaId, value) => onUpdatePontuacao(atividade.id, tentativaId, value)}
-          onUpdateIntercorrencia={(intercorrenciaId, field, value) => onUpdateIntercorrencia(atividade.id, intercorrenciaId, field, value)}
           onSalvar={() => handleSalvarAtividade(atividade.id)}
           onToggleMinimizar={() => onToggleMinimizar(atividade.id)}
           onCalcularSomatorio={() => onCalcularSomatorio(atividade.id)}
           onDesfazer={() => onDesfazer(atividade.id)}
           onExcluir={() => onExcluir(atividade.id)}
           completudeOptions={completudeOptions}
+          adicionarIntercorrencia={adicionarIntercorrencia}
         />
       ))}
     </View>

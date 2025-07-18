@@ -1,5 +1,6 @@
 import { supabase } from '../utils/supabase';
 import { CriarProgressoAtividadeInput, progressoAtividadeService } from './ProgressoAtividadeService';
+import { RegistroIntercorrenciaInput, registroIntercorrenciaService } from './RegistroIntercorrenciaService';
 
 export interface AulaData {
   id_aula: number;
@@ -16,6 +17,7 @@ export interface CriarAulaInput {
   local?: string;
   responsavel?: string;
   atividades?: CriarProgressoAtividadeInput[]; // Array de atividades realizadas na aula
+  intercorrencias?: Omit<RegistroIntercorrenciaInput, 'id_aula'>[]; // Array de intercorrências registradas na aula
 }
 
 class AulaService {
@@ -62,6 +64,47 @@ class AulaService {
             }
           };
         }
+      }
+
+      // Se há intercorrências para salvar, salva após criar a aula
+      if (dados.intercorrencias && dados.intercorrencias.length > 0) {
+        console.log('=== LOG INTERCORRÊNCIAS - AULA SERVICE ===');
+        console.log('Salvando intercorrências da aula:', dados.intercorrencias);
+        console.log('ID da aula criada:', data.id_aula);
+        
+        // Adicionar id_aula às intercorrências
+        const intercorrenciasComAula = dados.intercorrencias.map(interc => ({
+          ...interc,
+          id_aula: data.id_aula
+        }));
+
+        console.log('Intercorrências com ID da aula:', intercorrenciasComAula);
+
+        const { data: resultadoIntercorrencias, error: intercorrenciasError } = await registroIntercorrenciaService.inserirMultiplos(
+          intercorrenciasComAula
+        );
+
+        console.log('Resultado do salvamento de intercorrências:', resultadoIntercorrencias);
+        console.log('Erro no salvamento de intercorrências:', intercorrenciasError);
+
+        if (intercorrenciasError) {
+          console.error('Erro ao salvar intercorrências, mas aula foi criada:', intercorrenciasError);
+          // Aula já foi criada, retorna sucesso mas com aviso
+          return { 
+            data, 
+            error: { 
+              message: 'Aula criada mas houve erro ao salvar algumas intercorrências',
+              originalError: intercorrenciasError
+            }
+          };
+        }
+
+        console.log('Intercorrências salvas com sucesso na tabela Registro_intercorrencia');
+        console.log('=========================================');
+      } else {
+        console.log('=== LOG INTERCORRÊNCIAS - AULA SERVICE ===');
+        console.log('Nenhuma intercorrência para salvar');
+        console.log('=========================================');
       }
 
       return { data, error: null };
