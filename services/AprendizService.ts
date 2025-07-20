@@ -15,6 +15,11 @@ export interface AprendizData {
   medicamentos?: string[];
   qualidade_sono?: string;
   alimentacao?: string;
+  part_ed_fisica?: string;
+  envolvimento_exer_fis?: string;
+  interesses?: string[];
+  objetivo_curto_prazo?: string[];
+  objetivo_longo_prazo?: string[];
 }
 
 // Tipo helper para compatibilidade com componentes que usam 'id'
@@ -31,6 +36,11 @@ export interface AprendizDisplay {
   medicamentos?: string[];
   qualidade_sono?: string;
   alimentacao?: string;
+  part_ed_fisica?: string;
+  envolvimento_exer_fis?: string;
+  interesses?: string[];
+  objetivo_curto_prazo?: string[];
+  objetivo_longo_prazo?: string[];
 }
 
 // Função helper para converter AprendizData para AprendizDisplay
@@ -45,7 +55,12 @@ export const mapAprendizToDisplay = (aprendiz: AprendizData): AprendizDisplay =>
   caracteristica_compr_vida: aprendiz.caracteristica_compr_vida,
   medicamentos: aprendiz.medicamentos,
   qualidade_sono: aprendiz.qualidade_sono,
-  alimentacao: aprendiz.alimentacao
+  alimentacao: aprendiz.alimentacao,
+  part_ed_fisica: aprendiz.part_ed_fisica,
+  envolvimento_exer_fis: aprendiz.envolvimento_exer_fis,
+  interesses: aprendiz.interesses,
+  objetivo_curto_prazo: aprendiz.objetivo_curto_prazo,
+  objetivo_longo_prazo: aprendiz.objetivo_longo_prazo
 });
 
 class AprendizService {
@@ -85,7 +100,12 @@ class AprendizService {
           caracteristica_compr_vida,
           medicamentos,
           qualidade_sono,
-          alimentacao
+          alimentacao,
+          part_ed_fisica,
+          envolvimento_exer_fis,
+          interesses,
+          objetivo_curto_prazo,
+          objetivo_longo_prazo
         `)
         .eq('id_aprendiz', id)
         .single();

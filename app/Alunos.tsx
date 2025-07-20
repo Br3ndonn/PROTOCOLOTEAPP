@@ -2,6 +2,7 @@ import ScreenWrapper from '@/components/shared/ScreenWrapper';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useAuthNavigation } from '@/hooks/useAuthNavigation';
 import { aprendizService } from '@/services/AprendizService';
+import { professorService } from '@/services/ProfessorService';
 import { styles } from '@/styles/AlunosStyles';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -32,6 +33,9 @@ export default function AlunosScreen() {
 
   // Estado para o filtro de busca
   const [searchText, setSearchText] = useState('');
+
+  // Estado para verificar se o usuário é supervisor
+  const [isSupervisor, setIsSupervisor] = useState(false);
 
   // Carregar aprendizes do banco de dados
   const carregarAprendizes = async () => {
@@ -70,6 +74,11 @@ export default function AlunosScreen() {
   useEffect(() => {
     if (user) {
       carregarAprendizes();
+
+      professorService.buscarPorId(user.id).then(({ data }) => {
+        setIsSupervisor(!!data?.e_supervisor);
+      })
+
     }
   }, [user]);
 
@@ -183,6 +192,7 @@ export default function AlunosScreen() {
       )}
 
       {/* Botão flutuante para adicionar novo aprendiz */}
+      {isSupervisor && (
       <TouchableOpacity
         style={styles.fabButton}
         onPress={() => {
@@ -192,6 +202,7 @@ export default function AlunosScreen() {
       >
         <IconSymbol name="plus" size={24} color="#ffffff" />
       </TouchableOpacity>
+      )}
     </ScreenWrapper>
   );
 }

@@ -181,7 +181,7 @@ export default function CadastroScreen() {
               />
             </View>
 
-            {/* Campo de Supervisor */}
+            {/* { Campo de Supervisor }
             <View style={{ marginBottom: 25 }}>
               <Text style={{ marginBottom: 10, fontWeight: '500', color: '#374151' }}>
                 Tipo de Usuário
@@ -228,7 +228,7 @@ export default function CadastroScreen() {
                   : 'Você será registrado como professor regular'
                 }
               </Text>
-            </View>
+            </View>*/}
 
             <TouchableOpacity
               style={{

@@ -161,12 +161,15 @@ class ProgressoAtividadeService {
           *,
           Planejamento_atividades (
             id_atividade,
-            observacoes,
-            created_at
+            Atividades (
+              id_atividade,
+              sigla,
+              numero,
+              nome
+            )
           )
         `)
-        .eq('id_aula', id_aula)
-        .order('created_at', { ascending: true });
+        .eq('id_aula', id_aula);
 
       if (error) {
         console.error('Erro ao buscar progressos com detalhes:', error);

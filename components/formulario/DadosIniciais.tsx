@@ -33,13 +33,20 @@ const DadosIniciais: React.FC<DadosIniciaisProps> = ({
           Aprendiz <Text style={{ color: '#ef4444' }}>*</Text>
         </Text>
         {aprendizPreenchidoAutomaticamente ? (
-          <FormInput
-            label=""
-            value={formData.aprendiz}
-            onChangeText={(text) => onUpdateFormData('aprendiz', text)}
-            placeholder="Nome do aprendiz"
-            required={false}
-          />
+          <View
+            style={{
+              paddingVertical: 8,
+              paddingHorizontal: 12,
+              backgroundColor: '#f3f4f6',
+              borderRadius: 8,
+              borderWidth: 1,
+              borderColor: '#e5e7eb',
+            }}
+          >
+            <Text style={{ fontSize: 16, color: '#374151' }}>
+              {formData.aprendiz || 'Nome do aprendiz'}
+            </Text>
+          </View>
         ) : (
           <SeletorAprendiz
             valorSelecionado={formData.aprendiz}
