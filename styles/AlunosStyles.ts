@@ -56,13 +56,8 @@ export const styles = StyleSheet.create({
     padding: 16,
     borderWidth: 1,
     borderColor: '#e2e8f0',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
+    // boxShadow para web, mantendo o estilo do shadow*
+    boxShadow: '0px 2px 8px rgba(0,0,0,0.05)',
     elevation: 2,
   },
   alunoHeader: {
@@ -145,12 +140,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
+    // boxShadow para web, mantendo o estilo do shadow*
+    boxShadow: '0px 4px 8px rgba(0,0,0,0.25)',
   },
 });
