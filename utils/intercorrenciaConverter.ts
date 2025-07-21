@@ -138,8 +138,8 @@ export const validarDadosIntercorrencia = (dados: any): { valid: boolean; errors
 
 // Formatar intercorrência para exibição
 export const formatarIntercorrenciaParaExibicao = (intercorrencia: IntercorrenciaTemporaria) => {
-  const frequenciaTexto = ['', 'Baixa', 'Média', 'Alta', 'Muito Alta'][intercorrencia.frequencia] || 'N/A';
-  const intensidadeTexto = ['', 'Leve', 'Moderada', 'Forte', 'Muito Forte'][intercorrencia.intensidade] || 'N/A';
+  const frequenciaTexto = ['', 'Baixa', 'Média', 'Alta', 'Muito Alta'][intercorrencia.frequencia ?? 0] || 'N/A';
+  const intensidadeTexto = ['', 'Leve', 'Moderada', 'Forte', 'Muito Forte'][intercorrencia.intensidade ?? 0] || 'N/A';
 
   return {
     nome: intercorrencia.nome_intercorrencia || 'Intercorrência sem nome',

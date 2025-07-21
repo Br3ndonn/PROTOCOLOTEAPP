@@ -210,26 +210,6 @@ class AulaService {
     }
   }
 
-  // Contar aulas por professor
-  async contarPorProfessor(id_professor: string): Promise<{ count: number; error: any }> {
-    try {
-      const { count, error } = await supabase
-        .from('Aula')
-        .select('*', { count: 'exact', head: true })
-        .eq('id_professor', id_professor);
-
-      if (error) {
-        console.error('Erro ao contar aulas:', error);
-        return { count: 0, error };
-      }
-
-      return { count: count || 0, error: null };
-    } catch (error) {
-      console.error('Erro inesperado ao contar aulas:', error);
-      return { count: 0, error };
-    }
-  }
-
   // Adicionar atividades a uma aula existente
   async adicionarAtividades(id_aula: number, atividades: CriarProgressoAtividadeInput[]): Promise<{ success: boolean; error: any }> {
     try {

@@ -30,19 +30,16 @@ class IntercorrenciaService {
     }
   }
 
-  /**
-   * Busca intercorrência por nome (para mapeamento)
-   */
-  async buscarPorNome(nome: string): Promise<{ data: IntercorrenciaData | null; error: any }> {
+  async buscarPorId(id: number): Promise<{ data: IntercorrenciaData | null; error: any }> {
     try {
       const { data, error } = await supabase
         .from('Intercorrencia')
         .select('id_intercorrencia, sigla, nome, descricao')
-        .eq('nome', nome)
+        .eq('id_intercorrencia', id)
         .single();
 
       if (error) {
-        console.error('Erro ao buscar intercorrência por nome:', error);
+        console.error('Erro ao buscar intercorrência por ID:', error);
         return { data: null, error };
       }
 

@@ -51,27 +51,6 @@ class ProfessorService {
     }
   }
 
-  // Buscar professor por email
-  async buscarPorEmail(email: string): Promise<{ data: ProfessorData | null; error: any }> {
-    try {
-      const { data, error } = await supabase
-        .from('Professor')
-        .select('id_professor, nome, email, e_supervisor')
-        .eq('email', email)
-        .single();
-
-      if (error) {
-        console.error('Erro ao buscar professor por email:', error);
-        return { data: null, error };
-      }
-
-      return { data, error: null };
-    } catch (error) {
-      console.error('Erro inesperado ao buscar professor:', error);
-      return { data: null, error };
-    }
-  }
-
   // Atualizar professor
   async atualizar(id: string, dados: Partial<Omit<ProfessorData, 'id_professor'>>): Promise<{ data: ProfessorData | null; error: any }> {
     try {

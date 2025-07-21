@@ -55,11 +55,15 @@ export const useIntercorrenciasTemporarias = () => {
       return 'Intercorrência deve ser selecionada';
     }
 
-    if (intercorrencia.frequencia < 1 || intercorrencia.frequencia > 4) {
+    if (intercorrencia.frequencia === undefined || 
+      intercorrencia.frequencia < 1 || 
+      intercorrencia.frequencia > 4) {
       return 'Frequência deve estar entre 1 e 4';
     }
 
-    if (intercorrencia.intensidade < 1 || intercorrencia.intensidade > 4) {
+    if (intercorrencia.intensidade === undefined || 
+      intercorrencia.intensidade < 1 || 
+      intercorrencia.intensidade > 4) {
       return 'Intensidade deve estar entre 1 e 4';
     }
 
@@ -129,6 +133,12 @@ export const useIntercorrenciasTemporarias = () => {
     }
   }, [adicionarIntercorrencia, validarIntercorrencia]);
 
+  // remover intercorrência temporária
+  const removerIntercorrenciaTemporaria = useCallback((id_temporario: string) => {
+    setIntercorrencias(prev => prev.filter(interc => interc.id_temporario !== id_temporario));
+    setError(null);
+  }, []);
+
   // Salvar múltiplas intercorrências no banco
   const salvarNoBanco = useCallback(async (id_aula: number): Promise<{ success: boolean; error: any }> => {
     if (intercorrencias.length === 0) {
@@ -162,40 +172,6 @@ export const useIntercorrenciasTemporarias = () => {
     }
   }, [intercorrencias, validarTodasIntercorrencias, prepararParaSalvamento]);
 
-  // Obter estatísticas das intercorrências
-  const obterEstatisticas = useCallback(() => {
-    if (intercorrencias.length === 0) {
-      return {
-        total: 0,
-        frequenciaMedia: 0,
-        intensidadeMedia: 0,
-        distribuicaoFrequencia: {},
-        distribuicaoIntensidade: {}
-      };
-    }
-
-    const frequenciaMedia = intercorrencias.reduce((sum, i) => sum + i.frequencia, 0) / intercorrencias.length;
-    const intensidadeMedia = intercorrencias.reduce((sum, i) => sum + i.intensidade, 0) / intercorrencias.length;
-
-    const distribuicaoFrequencia = intercorrencias.reduce((dist, i) => {
-      dist[i.frequencia] = (dist[i.frequencia] || 0) + 1;
-      return dist;
-    }, {} as Record<number, number>);
-
-    const distribuicaoIntensidade = intercorrencias.reduce((dist, i) => {
-      dist[i.intensidade] = (dist[i.intensidade] || 0) + 1;
-      return dist;
-    }, {} as Record<number, number>);
-
-    return {
-      total: intercorrencias.length,
-      frequenciaMedia: Math.round(frequenciaMedia * 100) / 100,
-      intensidadeMedia: Math.round(intensidadeMedia * 100) / 100,
-      distribuicaoFrequencia,
-      distribuicaoIntensidade
-    };
-  }, [intercorrencias]);
-
   return {
     intercorrencias,
     loading,
@@ -209,7 +185,7 @@ export const useIntercorrenciasTemporarias = () => {
     prepararParaSalvamento,
     salvarIntercorrenciaLocal,
     salvarNoBanco,
-    obterEstatisticas,
+    removerIntercorrenciaTemporaria,
     setError
   };
 };

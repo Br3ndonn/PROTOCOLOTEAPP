@@ -28,7 +28,7 @@ const IntercorrenciasSection: React.FC<IntercorrenciasSectionProps> = ({
   const [houveIntercorrencia, setHouveIntercorrencia] = useState(false);
   const [intercorrencias, setIntercorrencias] = useState<IntercorrenciaFormData[]>([]);
   const [loading, setLoading] = useState(true);
-  const { adicionarIntercorrencia: adicionarLocal } = useIntercorrenciasTemporarias();
+  const { adicionarIntercorrencia: adicionarLocal, removerIntercorrencia: removerIntercorrenciaTemporaria } = useIntercorrenciasTemporarias();
 
   // Usar a função global se fornecida, senão usar a local
   const adicionarIntercorrencia = adicionarIntercorrenciaGlobal || adicionarLocal;
@@ -110,6 +110,8 @@ const IntercorrenciasSection: React.FC<IntercorrenciasSectionProps> = ({
         if (field === 'selecionada' && !value) {
           updated.frequencia = null;
           updated.intensidade = null;
+          // remover intercorrência temporária se desmarcar
+          removerIntercorrenciaTemporaria(String(item.id_intercorrencia));
         }
         
         // Se marcou e tem frequência/intensidade, salvar no cache temporário
