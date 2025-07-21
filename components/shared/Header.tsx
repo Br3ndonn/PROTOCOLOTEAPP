@@ -54,29 +54,31 @@ const Header: React.FC<HeaderProps> = ({
   return (
     <View style={styles.header}>
       {/* Botão de Voltar */}
-      {shouldShowBackButton && (
-        <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
-          <IconSymbol name="chevron.left" size={24} color="#6366f1" />
-        </TouchableOpacity>
-      )}
-      
-      {/* Conteúdo do Header */}
-      <View style={[styles.headerContent, shouldShowBackButton && styles.headerContentWithBack]}>
+      <View style={styles.sideButtonContainer}>
+        {shouldShowBackButton && (
+          <TouchableOpacity onPress={handleBackPress} style={styles.iconButton}>
+            <IconSymbol name="chevron.left" size={26} color="#6366f1" />
+          </TouchableOpacity>
+        )}
+      </View>
+      {/* Conteúdo central do Header */}
+      <View style={styles.centerContent}>
         <Text style={styles.title}>{title}</Text>
         {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
         {user && (
-          <Text style={styles.userInfo}>
+          <Text style={styles.userInfo} numberOfLines={1}>
             Olá, {user.user_metadata?.nome_completo || user.email}
           </Text>
         )}
       </View>
-      
       {/* Botão de Logout */}
-      {showLogout && (
-        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-          <IconSymbol name="rectangle.portrait.and.arrow.right" size={24} color="#ef4444" />
-        </TouchableOpacity>
-      )}
+      <View style={styles.sideButtonContainer}>
+        {showLogout && (
+          <TouchableOpacity onPress={handleLogout} style={styles.iconButton}>
+            <IconSymbol name="rectangle.portrait.and.arrow.right" size={24} color="#ef4444" />
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 };
@@ -84,42 +86,62 @@ const Header: React.FC<HeaderProps> = ({
 const styles = {
   header: {
     flexDirection: 'row' as const,
-    justifyContent: 'space-between' as const,
     alignItems: 'center' as const,
-    padding: 16,
-    backgroundColor: '#ffffff',
+    justifyContent: 'space-between' as const,
+    paddingHorizontal: 16,
+    paddingTop: 18,
+    paddingBottom: 14,
+    backgroundColor: '#f8fafc',
     borderBottomWidth: 1,
     borderBottomColor: '#e5e7eb',
-    minHeight: 60,
+    minHeight: 70,
+    // boxShadow para web
+    boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+    elevation: 2,
+    zIndex: 10,
   },
-  backButton: {
+  sideButtonContainer: {
+    width: 44,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+  },
+  iconButton: {
     padding: 8,
-    marginRight: 8,
+    borderRadius: 20,
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 2,
+    // boxShadow para web
+    boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
   },
-  headerContent: {
+  centerContent: {
     flex: 1,
-  },
-  headerContentWithBack: {
-    marginLeft: 0,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    gap: 2,
   },
   title: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold' as const,
     color: '#1f2937',
+    letterSpacing: 0.2,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#6b7280',
-    marginTop: 4,
+    fontSize: 15,
+    color: '#6366f1',
+    marginTop: 2,
+    fontWeight: '500' as const,
+    letterSpacing: 0.1,
   },
   userInfo: {
-    fontSize: 14,
-    color: '#9ca3af',
+    fontSize: 13,
+    color: '#64748b',
     marginTop: 2,
-  },
-  logoutButton: {
-    padding: 8,
-    marginLeft: 8,
+    maxWidth: 180,
+    textAlign: 'center' as const,
+    fontStyle: 'italic' as const,
   },
 };
 
