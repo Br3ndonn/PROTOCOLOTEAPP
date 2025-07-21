@@ -33,13 +33,8 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
     borderWidth: 1,
     borderColor: '#e2e8f0',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
+    // boxShadow para web, mantendo o estilo do shadow*
+    boxShadow: '0px 2px 8px rgba(0,0,0,0.05)',
     elevation: 2,
   },
   alunoHeader: {
@@ -161,13 +156,8 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 16,
     borderRadius: 12,
-    shadowColor: '#6366f1',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    // boxShadow para web, mantendo o estilo do shadow*
+    boxShadow: '0px 4px 8px rgba(99,102,241,0.3)',
     elevation: 4,
   },
   novaAulaText: {
@@ -195,13 +185,8 @@ export const styles = StyleSheet.create({
   },
   tabAtiva: {
     backgroundColor: '#ffffff',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    // boxShadow para web, mantendo o estilo do shadow*
+    boxShadow: '0px 1px 2px rgba(0,0,0,0.1)',
     elevation: 2,
   },
   tabText: {
