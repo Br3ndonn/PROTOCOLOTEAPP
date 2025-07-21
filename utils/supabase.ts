@@ -41,8 +41,10 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 // Criar storage
-const storage = StorageFactory.createStorage();
-
+let storage: any = null;
+if (typeof window !== 'undefined') {
+  storage = StorageFactory.createStorage();
+}
 // Criar configuração
 const config = SupabaseConfig.createConfig(storage);
 
