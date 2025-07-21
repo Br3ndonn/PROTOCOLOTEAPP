@@ -127,7 +127,7 @@ export default function AlunosScreen() {
     <ScreenWrapper 
       title="Lista de Alunos"
       subtitle="Protocolo TEA"
-      showBackButton={false} // Não mostrar botão de voltar na tab principal
+      showBackButton={false}
     >
       {/* Campo de busca */}
       <View style={styles.searchContainer}>
