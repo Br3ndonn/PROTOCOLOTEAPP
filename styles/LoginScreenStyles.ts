@@ -29,13 +29,8 @@ export const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderRadius: 12,
     padding: 24,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
+    // boxShadow para web, mantendo o estilo do shadow*
+    boxShadow: '0px 2px 3.84px rgba(0,0,0,0.1)',
     elevation: 5,
   },
   inputContainer: {
@@ -120,10 +115,8 @@ export const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    // boxShadow para web, mantendo o estilo do shadow*
+    boxShadow: '0px 2px 8px rgba(0,0,0,0.1)',
     elevation: 4,
     marginBottom: 20,
   },
