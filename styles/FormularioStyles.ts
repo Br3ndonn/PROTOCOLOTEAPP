@@ -30,10 +30,8 @@ export const styles = StyleSheet.create({
     padding: 16,
     borderWidth: 1,
     borderColor: '#e2e8f0',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
+    // boxShadow para web, mantendo o estilo do shadow*
+    boxShadow: '0px 2px 8px rgba(0,0,0,0.05)',
     elevation: 2,
   },
   sectionTitle: {
@@ -126,10 +124,8 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    // boxShadow para web, mantendo o estilo do shadow*
+    boxShadow: '0px 1px 2px rgba(0,0,0,0.1)',
   },
   pontuacaoButtonFull: {
     width: '100%',
@@ -142,18 +138,15 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 8,
     elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    // boxShadow para web, mantendo o estilo do shadow*
+    boxShadow: '0px 1px 2px rgba(0,0,0,0.1)',
   },
   pontuacaoButtonSelected: {
     backgroundColor: '#6366f1',
     borderColor: '#6366f1',
     elevation: 3,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+    // boxShadow para web, mantendo o estilo do shadow*
+    boxShadow: '0px 2px 4px rgba(99,102,241,0.2)',
   },
   pontuacaoText: {
     fontSize: 18,
@@ -260,10 +253,8 @@ export const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 12,
     gap: 8,
-    shadowColor: '#10b981',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    // boxShadow para web, mantendo o estilo do shadow*
+    boxShadow: '0px 4px 8px rgba(16,185,129,0.3)',
     elevation: 4,
   },
   salvarButtonText: {
@@ -290,10 +281,8 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    // boxShadow para web, mantendo o estilo do shadow*
+    boxShadow: '0px 1px 2px rgba(0,0,0,0.1)',
     elevation: 2,
   },
   checkboxChecked: {
