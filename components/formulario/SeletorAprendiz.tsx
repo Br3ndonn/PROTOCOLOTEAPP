@@ -3,13 +3,13 @@ import { AprendizData, aprendizService } from '@/services/AprendizService';
 import { styles } from '@/styles/FormularioStyles';
 import React, { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    FlatList,
-    Modal,
-    Text,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Modal,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 
 interface SeletorAprendizProps {
@@ -125,10 +125,8 @@ const SeletorAprendiz: React.FC<SeletorAprendizProps> = ({
                     marginBottom: 12,
                     flexDirection: 'row',
                     alignItems: 'center',
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 1 },
-                    shadowOpacity: 0.1,
-                    shadowRadius: 2,
+                    // boxShadow para web, mantendo o estilo do shadow*
+                    boxShadow: '0px 1px 2px rgba(0,0,0,0.1)',
                     elevation: 2
                   }}
                   onPress={() => selecionarAprendiz(item)}
