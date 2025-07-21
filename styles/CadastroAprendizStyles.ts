@@ -18,6 +18,8 @@ export const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     borderColor: '#e9ecef',
+    // boxShadow para web, mantendo o estilo do shadow*
+    boxShadow: '0px 2px 8px rgba(0,0,0,0.05)',
   },
 
   sectionTitle: {
