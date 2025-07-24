@@ -82,6 +82,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
+      // Limpar o estado do professor imediatamente
+      setProfessor(null);
       await AuthService.signOut();
     } catch (error) {
       logError(error, 'AuthContext.signOut');

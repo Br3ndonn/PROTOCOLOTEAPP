@@ -37,7 +37,11 @@ const Header: React.FC<HeaderProps> = ({
         { 
           text: 'Sair', 
           style: 'destructive',
-          onPress: () => signOut()
+          onPress: async () => {
+            await signOut();
+            // Forçar navegação para tela de login após logout
+            router.replace('/LoginScreen');
+          }
         }
       ]
     );

@@ -124,15 +124,10 @@ export const onAuthStateChange = (callback: (event: string, session: any) => voi
 }
 
 // Função para buscar dados do professor pelo ID do usuário
-export const getProfessorByUserId = async (userId: string) => {
-  const { data, error } = await supabase
-    .from('Professor')
-    .select('*')
-    .eq('id_professor', userId)
-    .single()
-  
-  return { data, error }
-}
+export const getProfessorByUserId = async (user: any) => {
+  if (!user || !user.id) return { data: null, error: 'Usuário inválido' };
+  return await professorService.buscarPorId(user.id);
+};
 
 // Função para sincronizar professor existente (para usuários que já existem)
 export const sincronizarProfessor = async (user: any): Promise<{ success: boolean; error: any }> => {

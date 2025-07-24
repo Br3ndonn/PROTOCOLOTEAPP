@@ -1,6 +1,27 @@
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
+
+  screen: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f8fafc',
+  },
+  loginContainer: {
+    width: Platform.OS === 'web' ? 400 : '90%',
+    maxWidth: '95%',
+    padding: 24,
+    borderRadius: 12,
+    backgroundColor: '#fff',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    alignSelf: 'center',
+  },
+
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
@@ -119,5 +140,11 @@ export const styles = StyleSheet.create({
     boxShadow: '0px 2px 8px rgba(0,0,0,0.1)',
     elevation: 4,
     marginBottom: 20,
+  },
+  errorText: {
+    color: '#e74c3c',
+    fontSize: 12,
+    marginTop: 4,
+    fontWeight: '500',
   },
 });

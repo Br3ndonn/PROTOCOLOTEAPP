@@ -6,16 +6,18 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   
   // Chamar o hook de navegação
-  useAuthNavigation();
+  const { user, loading: authLoading } = useAuthNavigation();
   
   useEffect(() => {
-    // Simulate loading time for navigation check
-    const timer = setTimeout(() => setLoading(false), 1000);
-    return () => clearTimeout(timer);
-  }, []);
+    // Aguardar que a autenticação termine de carregar
+    if (!authLoading) {
+      const timer = setTimeout(() => setLoading(false), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [authLoading]);
 
   // Mostrar loading enquanto verifica autenticação
-  if (loading) {
+  if (loading || authLoading) {
     return <LoadingScreen />;
   }
 
