@@ -7,12 +7,11 @@ import { AtividadeParaSelecao } from '../../services/PlanejamentoAtividadesServi
 import { converterAtividadeParaBanco, validarAtividadeParaSalvar } from '../../utils/atividadeConverter';
 import AtividadeContainer from './AtividadeContainer';
 import ComboboxAtividades from './ComboboxAtividades';
-import { AtividadeData, CompletudeOption } from './types';
+import { AtividadeData } from './types';
 
 interface GerenciadorAtividadesProps {
   atividades: AtividadeData[];
   mostrarCombobox: boolean;
-  completudeOptions: CompletudeOption[];
   aprendizId?: string; // ID do aprendiz para carregar atividades do planejamento
   onNovaAtividade: () => void;
   onSelecionarAtividade: (atividade: AtividadeParaSelecao) => void;
@@ -26,14 +25,11 @@ interface GerenciadorAtividadesProps {
   onExcluir: (atividadeId: string) => void;
   // Nova prop para integração com sistema temporário
   onSalvarAtividadeTemporaria?: (atividade: AtividadeData) => void;
-  // Props para integrar com o hook global de intercorrências
-  adicionarIntercorrencia?: (intercorrencia: any) => string;
 }
 
 const GerenciadorAtividades: React.FC<GerenciadorAtividadesProps> = ({
   atividades,
   mostrarCombobox,
-  completudeOptions,
   aprendizId,
   onNovaAtividade,
   onSelecionarAtividade,
@@ -45,8 +41,7 @@ const GerenciadorAtividades: React.FC<GerenciadorAtividadesProps> = ({
   onCalcularSomatorio,
   onDesfazer,
   onExcluir,
-  onSalvarAtividadeTemporaria,
-  adicionarIntercorrencia
+  onSalvarAtividadeTemporaria
 }) => {
   // Hook para gerenciar atividades temporárias
   const { salvarAtividadeLocal } = useAtividadesTemporarias();
@@ -126,8 +121,6 @@ const GerenciadorAtividades: React.FC<GerenciadorAtividadesProps> = ({
           onCalcularSomatorio={() => onCalcularSomatorio(atividade.id)}
           onDesfazer={() => onDesfazer(atividade.id)}
           onExcluir={() => onExcluir(atividade.id)}
-          completudeOptions={completudeOptions}
-          adicionarIntercorrencia={adicionarIntercorrencia}
         />
       ))}
     </View>

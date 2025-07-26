@@ -23,8 +23,9 @@ export default function AlunoDetalhesScreen() {
   const [abaAtiva, setAbaAtiva] = useState<'basicas' | 'complementares'>('basicas');
   const [ultimaAulaExpanded, setUltimaAulaExpanded] = useState(false);
   const [ultimaAulaInfo, setUltimaAulaInfo] = useState<{ 
-    data_aula: string; 
-    total_pontos: number;
+    data_aula: string;
+    id_professor?: string; // Opcional, se não for necessário 
+    // total_pontos: number;
     atividades?: Array<{
       nome_atividade: string;
       pontuacao: number;
@@ -320,9 +321,11 @@ export default function AlunoDetalhesScreen() {
                         </View>
                         <View style={styles.ultimaAulaPontosContainer}>
                           <IconSymbol name="star.fill" size={16} color="#f59e0b" />
+                          { /* 
                           <Text style={styles.ultimaAulaPontos}>
                             {ultimaAulaInfo.total_pontos} pontos
-                          </Text>
+                          </Text> 
+                          */ }
                         </View>
                       </View>
 

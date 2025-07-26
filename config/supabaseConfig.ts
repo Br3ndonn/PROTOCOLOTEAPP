@@ -1,8 +1,9 @@
 import { EnvironmentDetector } from '@/utils/environment';
 import { StorageAdapter } from '@/utils/storageFactory';
+import type { SupabaseClientOptions } from '@supabase/supabase-js';
 
 export class SupabaseConfig {
-  static createConfig(storage: StorageAdapter) {
+  static createConfig(storage: StorageAdapter): SupabaseClientOptions<'public'> {
     const isWeb = EnvironmentDetector.isWeb();
     const isRN = EnvironmentDetector.isReactNative();
 
@@ -13,11 +14,16 @@ export class SupabaseConfig {
         detectSessionInUrl: isWeb,
         storage: storage,
         storageKey: 'supabase-auth-token',
-        flowType: 'implicit'
+        flowType: isWeb ? 'implicit': 'pkce', // Dinamico conforme o ambiente
       },
       global: {
         headers: {
           'X-Client-Info': isRN ? 'react-native' : 'web'
+        }
+      },
+      realtime: {
+        params: {
+          eventsPerSecond: 10 // Limite de eventos por segundo
         }
       }
     };

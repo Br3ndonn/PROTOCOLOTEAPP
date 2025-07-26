@@ -40,6 +40,17 @@ export interface IntercorrenciaData {
   intensidade: number;
 }
 
+export interface IntercorrenciaGerenciada {
+  id: string;
+  id_intercorrencia: number;
+  nome: string;
+  selecionada: boolean;
+  frequencia: number;
+  intensidade: number;
+  salva: boolean;
+  minimizada: boolean;
+}
+
 export interface AtividadeDisponivel {
   id: string;
   nome: string;

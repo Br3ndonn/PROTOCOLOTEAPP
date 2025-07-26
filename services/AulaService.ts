@@ -1,6 +1,6 @@
 import { supabase } from '../utils/supabase';
 import { CriarProgressoAtividadeInput, progressoAtividadeService } from './ProgressoAtividadeService';
-import { RegistroIntercorrenciaInput, registroIntercorrenciaService } from './RegistroIntercorrenciaService';
+import { registroIntercorrenciaService } from './RegistroIntercorrenciaService';
 
 export interface AulaData {
   id_aula: number;
@@ -16,12 +16,10 @@ export interface CriarAulaInput {
   observacoes?: string;
   local?: string;
   responsavel?: string;
-  atividades?: CriarProgressoAtividadeInput[]; // Array de atividades realizadas na aula
-  intercorrencias?: Omit<RegistroIntercorrenciaInput, 'id_aula'>[]; // Array de intercorrências registradas na aula
 }
 
 class AulaService {
-  // Criar nova aula
+  // Criar nova aula (apenas a aula, sem atividades ou intercorrências)
   async criar(dados: CriarAulaInput): Promise<{ data: AulaData | null; error: any }> {
     try {
       const aulaData = {
@@ -44,69 +42,6 @@ class AulaService {
       }
 
       console.log('Aula criada com sucesso:', data);
-
-      // Se há atividades para salvar, salva após criar a aula
-      if (dados.atividades && dados.atividades.length > 0) {
-        console.log('Salvando atividades da aula:', dados.atividades);
-        const { error: atividadesError } = await progressoAtividadeService.salvarMultiplos(
-          data.id_aula,
-          dados.atividades
-        );
-
-        if (atividadesError) {
-          console.error('Erro ao salvar atividades, mas aula foi criada:', atividadesError);
-          // Aula já foi criada, retorna sucesso mas com aviso
-          return { 
-            data, 
-            error: { 
-              message: 'Aula criada mas houve erro ao salvar algumas atividades',
-              originalError: atividadesError
-            }
-          };
-        }
-      }
-
-      // Se há intercorrências para salvar, salva após criar a aula
-      if (dados.intercorrencias && dados.intercorrencias.length > 0) {
-        console.log('=== LOG INTERCORRÊNCIAS - AULA SERVICE ===');
-        console.log('Salvando intercorrências da aula:', dados.intercorrencias);
-        console.log('ID da aula criada:', data.id_aula);
-        
-        // Adicionar id_aula às intercorrências
-        const intercorrenciasComAula = dados.intercorrencias.map(interc => ({
-          ...interc,
-          id_aula: data.id_aula
-        }));
-
-        console.log('Intercorrências com ID da aula:', intercorrenciasComAula);
-
-        const { data: resultadoIntercorrencias, error: intercorrenciasError } = await registroIntercorrenciaService.inserirMultiplos(
-          intercorrenciasComAula
-        );
-
-        console.log('Resultado do salvamento de intercorrências:', resultadoIntercorrencias);
-        console.log('Erro no salvamento de intercorrências:', intercorrenciasError);
-
-        if (intercorrenciasError) {
-          console.error('Erro ao salvar intercorrências, mas aula foi criada:', intercorrenciasError);
-          // Aula já foi criada, retorna sucesso mas com aviso
-          return { 
-            data, 
-            error: { 
-              message: 'Aula criada mas houve erro ao salvar algumas intercorrências',
-              originalError: intercorrenciasError
-            }
-          };
-        }
-
-        console.log('Intercorrências salvas com sucesso na tabela Registro_intercorrencia');
-        console.log('=========================================');
-      } else {
-        console.log('=== LOG INTERCORRÊNCIAS - AULA SERVICE ===');
-        console.log('Nenhuma intercorrência para salvar');
-        console.log('=========================================');
-      }
-
       return { data, error: null };
     } catch (error) {
       console.error('Erro inesperado ao criar aula:', error);
@@ -308,8 +243,10 @@ class AulaService {
   // Buscar resumo detalhado da última aula de um aprendiz
   async buscarResumoUltimaAula(id_aprendiz: string): Promise<{ 
     data: { 
-      data_aula: string; 
-      total_pontos: number;
+      data_aula: string;
+      id_professor?: string; // Opcional, se não for necessário
+
+      // total_pontos: number;
       atividades: Array<{
         nome_atividade: string;
         pontuacao: number;
@@ -370,12 +307,12 @@ class AulaService {
       }
 
       // Calcular o total de pontos
-      const totalPontos = atividadesProcessadas.reduce((total, atividade) => total + (atividade.pontuacao || 0), 0);
+      // const totalPontos = atividadesProcessadas.reduce((total, atividade) => total + (atividade.pontuacao || 0), 0);
 
       return {
         data: {
           data_aula: ultimaAula.data_aula,
-          total_pontos: totalPontos,
+          // total_pontos: totalPontos,
           atividades: atividadesProcessadas,
           intercorrencias: intercorrenciasProcessadas
         },

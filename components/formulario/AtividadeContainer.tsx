@@ -1,11 +1,12 @@
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { styles } from '@/styles/FormularioStyles';
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
+import { COMPLETUDE_OPTIONS } from './constants';
 import IntercorrenciasSection from './IntercorrenciasSection';
 import SomatorioSection from './SomatorioSection';
 import TentativasGrid from './TentativasGrid';
-import { AtividadeData, CompletudeOption } from './types';
+import { AtividadeData } from './types';
 
 interface AtividadeContainerProps {
   atividade: AtividadeData;
@@ -17,9 +18,6 @@ interface AtividadeContainerProps {
   onCalcularSomatorio: () => void;
   onDesfazer: () => void;
   onExcluir: () => void;
-  completudeOptions: CompletudeOption[];
-  // Props para integrar com o hook global de intercorrências
-  adicionarIntercorrencia?: (intercorrencia: any) => string;
 }
 
 const AtividadeContainer: React.FC<AtividadeContainerProps> = ({
@@ -31,10 +29,35 @@ const AtividadeContainer: React.FC<AtividadeContainerProps> = ({
   onToggleMinimizar,
   onCalcularSomatorio,
   onDesfazer,
-  onExcluir,
-  completudeOptions,
-  adicionarIntercorrencia
+  onExcluir
 }) => {
+  // Memoizar IDs para evitar recriação desnecessária
+  const atividadeIdMemo = useMemo(() => 
+    atividade.id || `atividade_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`, 
+    [atividade.id]
+  );
+
+  const aprendizIdMemo = useMemo(() => 
+    aprendizId || "temp_aprendiz", 
+    [aprendizId]
+  );
+
+  // Memoizar callbacks para evitar re-renders desnecessários
+  const handleIntercorrenciasChange = useCallback((hasIntercorrencias: boolean) => {
+    onUpdateData('houveIntercorrencia', hasIntercorrencias);
+  }, [onUpdateData]);
+
+  const handleUpdateIntercorrencias = useCallback((intercorrencias: any[]) => {
+    // Converter para o formato esperado pela atividade
+    const intercorrenciasAtividade = intercorrencias.map(interc => ({
+      id: String(interc.id_intercorrencia),
+      nome: interc.nome,
+      selecionada: interc.selecionada,
+      frequencia: interc.frequencia,
+      intensidade: interc.intensidade
+    }));
+    onUpdateData('intercorrencias', intercorrenciasAtividade);
+  }, [onUpdateData]);
   return (
     <View style={[
       styles.atividadeContainer,
@@ -70,7 +93,7 @@ const AtividadeContainer: React.FC<AtividadeContainerProps> = ({
           <View style={styles.completudeSection}>
             <Text style={styles.completudeTitle}>Completude do Planejado</Text>
             <View style={styles.optionsContainer}>
-              {completudeOptions.map((option) => (
+              {COMPLETUDE_OPTIONS.map((option) => (
                 <TouchableOpacity
                   key={option}
                   style={[
@@ -98,13 +121,10 @@ const AtividadeContainer: React.FC<AtividadeContainerProps> = ({
 
           {/* Intercorrências */}
           <IntercorrenciasSection
-            aprendizId={aprendizId || "temp_aprendiz"} // Usa o ID real ou um temporário
-            atividadeId={atividade.id || `atividade_${Date.now()}`}
-            adicionarIntercorrencia={adicionarIntercorrencia}
-            onIntercorrenciasChange={(hasIntercorrencias) => {
-              // Callback opcional para notificar mudanças de estado
-              console.log('Intercorrências mudaram para atividade:', atividade.id, hasIntercorrencias);
-            }}
+            aprendizId={aprendizIdMemo}
+            atividadeId={atividadeIdMemo}
+            onIntercorrenciasChange={handleIntercorrenciasChange}
+            onUpdateIntercorrencias={handleUpdateIntercorrencias}
           />
 
           {/* Somatório */}

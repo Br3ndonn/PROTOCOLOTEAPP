@@ -1,8 +1,7 @@
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { styles } from '@/styles/FormularioStyles';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, Text, TouchableOpacity, View } from 'react-native';
-import { useIntercorrenciasTemporarias } from '../../hooks/useIntercorrenciasTemporarias';
 import { IntercorrenciaData, intercorrenciaService } from '../../services/IntercorrenciaService';
 
 interface IntercorrenciaFormData extends IntercorrenciaData {
@@ -15,38 +14,50 @@ interface IntercorrenciasSectionProps {
   aprendizId: string;
   atividadeId: string;
   onIntercorrenciasChange?: (hasIntercorrencias: boolean) => void;
-  // Props para integrar com o hook global de intercorrências
-  adicionarIntercorrencia?: (intercorrencia: any) => string;
+  // Nova prop para atualizar intercorrências na atividade
+  onUpdateIntercorrencias?: (intercorrencias: IntercorrenciaFormData[]) => void;
 }
 
 const IntercorrenciasSection: React.FC<IntercorrenciasSectionProps> = ({
   aprendizId,
   atividadeId,
   onIntercorrenciasChange,
-  adicionarIntercorrencia: adicionarIntercorrenciaGlobal
+  onUpdateIntercorrencias
 }) => {
   const [houveIntercorrencia, setHouveIntercorrencia] = useState(false);
   const [intercorrencias, setIntercorrencias] = useState<IntercorrenciaFormData[]>([]);
   const [loading, setLoading] = useState(true);
-  const { adicionarIntercorrencia: adicionarLocal, removerIntercorrencia: removerIntercorrenciaTemporaria } = useIntercorrenciasTemporarias();
-
-  // Usar a função global se fornecida, senão usar a local
-  const adicionarIntercorrencia = adicionarIntercorrenciaGlobal || adicionarLocal;
 
   // Carregar intercorrências do banco
   useEffect(() => {
     carregarIntercorrencias();
   }, []);
 
-  // Notificar mudanças de estado
+  // Memoizar estado de intercorrências para evitar re-renders desnecessários
+  const intercorrenciasMemo = useMemo(() => intercorrencias, [intercorrencias]);
+  
+  // Memoizar estado de intercorrências selecionadas
+  const hasIntercorrenciasSelecionadas = useMemo(() => 
+    intercorrencias.some(i => i.selecionada), 
+    [intercorrencias]
+  );
+
+  // Notificar mudanças de estado para a atividade
   useEffect(() => {
     if (onIntercorrenciasChange) {
-      const hasIntercorrenciasSelecionadas = intercorrencias.some(i => i.selecionada);
       onIntercorrenciasChange(houveIntercorrencia && hasIntercorrenciasSelecionadas);
     }
-  }, [houveIntercorrencia, intercorrencias, onIntercorrenciasChange]);
+  }, [houveIntercorrencia, hasIntercorrenciasSelecionadas]); // Removido onIntercorrenciasChange
 
-  const carregarIntercorrencias = async () => {
+  // Notificar mudanças de intercorrências para a atividade (separado para evitar loops)
+  useEffect(() => {
+    if (onUpdateIntercorrencias) {
+      onUpdateIntercorrencias(intercorrenciasMemo);
+    }
+  }, [JSON.stringify(intercorrenciasMemo)]); // Usar JSON.stringify para comparação profunda
+
+  // Memoizar função de carregamento para evitar loops
+  const carregarIntercorrencias = useCallback(async () => {
     try {
       console.log('🔄 Carregando intercorrências do banco de dados...');
       setLoading(true);
@@ -75,7 +86,7 @@ const IntercorrenciasSection: React.FC<IntercorrenciasSectionProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const toggleIntercorrencia = () => {
     const novoEstado = !houveIntercorrencia;
@@ -110,41 +121,12 @@ const IntercorrenciasSection: React.FC<IntercorrenciasSectionProps> = ({
         if (field === 'selecionada' && !value) {
           updated.frequencia = null;
           updated.intensidade = null;
-          // remover intercorrência temporária se desmarcar
-          removerIntercorrenciaTemporaria(String(item.id_intercorrencia));
-        }
-        
-        // Se marcou e tem frequência/intensidade, salvar no cache temporário
-        if (updated.selecionada && updated.frequencia && updated.intensidade) {
-          salvarIntercorrenciaTemporaria(updated);
         }
         
         return updated;
       }
       return item;
     }));
-  };
-
-  const salvarIntercorrenciaTemporaria = async (intercorrencia: IntercorrenciaFormData) => {
-    try {
-      console.log('💾 Salvando intercorrência para atividade específica:', {
-        atividadeId,
-        intercorrencia: intercorrencia.nome,
-        frequencia: intercorrencia.frequencia,
-        intensidade: intercorrencia.intensidade
-      });
-      
-      await adicionarIntercorrencia({
-        id_intercorrencia: intercorrencia.id_intercorrencia,
-        nome_intercorrencia: intercorrencia.nome,
-        frequencia: intercorrencia.frequencia!,
-        intensidade: intercorrencia.intensidade!
-      });
-      
-      console.log('✅ Intercorrência salva no cache temporário para a atividade:', atividadeId);
-    } catch (error) {
-      console.error('❌ Erro ao salvar intercorrência temporária:', error);
-    }
   };
 
   if (loading) {

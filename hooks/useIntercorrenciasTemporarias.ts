@@ -1,9 +1,13 @@
 import { useCallback, useState } from 'react';
 import { RegistroIntercorrenciaInput, registroIntercorrenciaService } from '../services/RegistroIntercorrenciaService';
 
-export interface IntercorrenciaTemporaria extends Omit<RegistroIntercorrenciaInput, 'id_aula'> {
-  id_temporario: string; // ID temporário para controle local
-  nome_intercorrencia?: string; // Nome da intercorrência para exibição
+export interface IntercorrenciaTemporaria {
+  id_temporario: string;
+  id_intercorrencia: number;
+  id_progresso_atividade: number; // Mudança: agora aponta para Progresso_atividades
+  nome_intercorrencia?: string;
+  frequencia: number; // Agora obrigatório
+  intensidade: number; // Agora obrigatório
 }
 
 export const useIntercorrenciasTemporarias = () => {
@@ -88,17 +92,13 @@ export const useIntercorrenciasTemporarias = () => {
     return { valid: errors.length === 0, errors };
   }, [intercorrencias, validarIntercorrencia]);
 
-  // Preparar dados para salvamento (remover campos temporários e adicionar id_aula)
-  const prepararParaSalvamento = useCallback((id_aula: number): RegistroIntercorrenciaInput[] => {
+  // Preparar dados para salvamento (remover campos temporários)
+  const prepararParaSalvamento = useCallback((): RegistroIntercorrenciaInput[] => {
     console.log('=== LOG HOOK INTERCORRÊNCIAS TEMPORÁRIAS ===');
     console.log('Preparando intercorrências para salvamento');
-    console.log('ID da aula recebido:', id_aula);
     console.log('Intercorrências temporárias a converter:', intercorrencias);
 
-    const dadosPreparados = intercorrencias.map(({ id_temporario, nome_intercorrencia, ...intercorrencia }) => ({
-      ...intercorrencia,
-      id_aula
-    }));
+    const dadosPreparados = intercorrencias.map(({ id_temporario, nome_intercorrencia, ...intercorrencia }) => intercorrencia);
 
     console.log('Dados preparados para inserção na tabela Registro_intercorrencia:', dadosPreparados);
     console.log('Número de registros preparados:', dadosPreparados.length);
@@ -153,7 +153,7 @@ export const useIntercorrenciasTemporarias = () => {
         return { success: false, error: errors.join('; ') };
       }
 
-      const registros = prepararParaSalvamento(id_aula);
+      const registros = prepararParaSalvamento();
       const { data, error } = await registroIntercorrenciaService.inserirMultiplos(registros);
 
       if (error) {
@@ -171,8 +171,16 @@ export const useIntercorrenciasTemporarias = () => {
       setLoading(false);
     }
   }, [intercorrencias, validarTodasIntercorrencias, prepararParaSalvamento]);
-
-  return {
+  
+  const obterEstatisticas = useCallback(() => {
+    // Implemente a lógica ou retorne um valor padrão
+    return {
+      total: intercorrencias.length,
+      // outros cálculos...
+    };
+  }, [intercorrencias]);
+  
+return {
     intercorrencias,
     loading,
     error,
@@ -185,6 +193,7 @@ export const useIntercorrenciasTemporarias = () => {
     prepararParaSalvamento,
     salvarIntercorrenciaLocal,
     salvarNoBanco,
+    obterEstatisticas,
     removerIntercorrenciaTemporaria,
     setError
   };

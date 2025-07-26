@@ -1,6 +1,6 @@
 import { AtividadeParaSelecao, planejamentoAtividadesService } from '@/services/PlanejamentoAtividadesService';
 import { styles } from '@/styles/FormularioStyles';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 
 interface ComboboxAtividadesProps {
@@ -20,14 +20,8 @@ const ComboboxAtividades: React.FC<ComboboxAtividadesProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Carregar atividades quando o componente fica visível
-  useEffect(() => {
-    if (visible && aprendizId) {
-      carregarAtividades();
-    }
-  }, [visible, aprendizId]);
-
-  const carregarAtividades = async () => {
+  // Memoizar função de carregamento para evitar loops
+  const carregarAtividades = useCallback(async () => {
     if (!aprendizId) {
       setError('ID do aprendiz não encontrado');
       return;
@@ -60,7 +54,14 @@ const ComboboxAtividades: React.FC<ComboboxAtividadesProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [aprendizId]);
+
+  // Carregar atividades quando o componente fica visível
+  useEffect(() => {
+    if (visible && aprendizId) {
+      carregarAtividades();
+    }
+  }, [visible, aprendizId, carregarAtividades]);
 
   if (!visible) return null;
 

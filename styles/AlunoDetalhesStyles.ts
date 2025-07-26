@@ -234,6 +234,9 @@ export const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderTopWidth: 1,
     borderTopColor: '#e2e8f0',
+    padding: 20,
+    borderRadius: 16,
+    marginBottom: 20,
   },
   ultimaAulaHeader: {
     flexDirection: 'row',

@@ -2,9 +2,9 @@ import { supabase } from '../utils/supabase';
 
 export interface RegistroIntercorrenciaInput {
   id_intercorrencia: number;
-  id_aula: number;
-  frequencia?: number;
-  intensidade?: number;
+  id_progresso_atividade: number; // Mudança: agora aponta para Progresso_atividades
+  frequencia: number; // Agora obrigatório (smallint NOT NULL)
+  intensidade: number; // Agora obrigatório (smallint NOT NULL)
 }
 
 export interface RegistroIntercorrenciaOutput extends RegistroIntercorrenciaInput {
@@ -13,36 +13,28 @@ export interface RegistroIntercorrenciaOutput extends RegistroIntercorrenciaInpu
 
 class RegistroIntercorrenciaService {
   /**
-   * Busca registros de intercorrência por ID da aula
-   * @param id_aula ID da aula
+   * Busca registros de intercorrência por ID do progresso da atividade
+   * @param id_progresso_atividade ID do progresso da atividade
    * @returns Promise com registros encontrados ou erro
    */
-  async buscarPorAula(id_aula: number): Promise<{ data: RegistroIntercorrenciaOutput[] | null; error: any }> {
+  async buscarPorProgresso(id_progresso_atividade: number): Promise<{ data: RegistroIntercorrenciaOutput[] | null; error: any }> {
     try {
       const { data, error } = await supabase
         .from('Registro_intercorrencia')
         .select(`
           id_registro_intercorrencia,
           id_intercorrencia,
-          id_aula,
+          id_progresso_atividade,
           frequencia,
           intensidade
         `)
-        .eq('id_aula', id_aula);
+        .eq('id_progresso_atividade', id_progresso_atividade);
 
-      if (error) {
-        console.error('Erro ao buscar registros de intercorrência por aula:', error);
-        return { data: null, error };
-      }
-
-      return { data: data || [], error: null };
+      return { data: data || [], error };
     } catch (error) {
-      console.error('Erro inesperado ao buscar registros de intercorrência:', error);
       return { data: null, error };
     }
-  }
-
-  /**
+  }  /**
    * Insere múltiplos registros de intercorrência
    * @param registros Array de registros a serem inseridos
    * @returns Promise com dados inseridos ou erro
@@ -51,100 +43,71 @@ class RegistroIntercorrenciaService {
     registros: RegistroIntercorrenciaInput[]
   ): Promise<{ data: RegistroIntercorrenciaOutput[] | null; error: Error | null }> {
     try {
-      console.log('=== LOG REGISTRO INTERCORRÊNCIA SERVICE ===');
-      console.log('Iniciando inserção de registros de intercorrência');
-      console.log('Número de registros a inserir:', registros.length);
-      console.log('Registros recebidos:', registros);
-
-      if (!registros || registros.length === 0) {
-        console.log('Nenhum registro para inserir, retornando array vazio');
-        return { data: [], error: null };
-      }
-
-      // Validação - remove id_registro_intercorrencia pois é auto-incremento
+      console.log('=== INÍCIO DO REGISTRO INTERCORRÊNCIA SERVICE ===');
+      console.log('Dados recebidos para inserção:', registros);
+      
+      // Validação
       const isValid = registros.every(reg => 
         reg.id_intercorrencia > 0 && 
-        reg.id_aula > 0
+        reg.id_progresso_atividade > 0 &&
+        reg.frequencia >= 1 && reg.frequencia <= 4 &&
+        reg.intensidade >= 1 && reg.intensidade <= 4
       );
-
-      console.log('Validação dos registros:', isValid);
-
+      
       if (!isValid) {
-        const erro = new Error('Dados de registro inválidos');
-        console.error('Erro de validação:', erro.message);
-        throw erro;
+        console.error('❌ Dados inválidos encontrados nos registros');
+        const error = new Error('Dados de intercorrência inválidos. Verifique se todos os campos estão preenchidos corretamente.');
+        return { data: null, error };
       }
 
-      console.log(`Inserindo ${registros.length} registros de intercorrência na tabela Registro_intercorrencia`);
-      console.log('Executando query no Supabase...');
+      console.log('✅ Validação dos dados concluída com sucesso');
 
       const { data, error } = await supabase
         .from('Registro_intercorrencia')
         .insert(registros)
         .select();
 
-      console.log('Resultado da inserção no Supabase:');
-      console.log('- Data retornada:', data);
-      console.log('- Error:', error);
-
       if (error) {
         console.error('Erro no Supabase ao inserir na tabela Registro_intercorrencia:', error);
         console.error('Detalhes do erro:', JSON.stringify(error, null, 2));
+        console.error('=== ERRO CRÍTICO NO REGISTRO INTERCORRÊNCIA SERVICE ===');
+        console.error('Erro ao inserir registros na tabela Registro_intercorrencia:', error);
+        console.error('Stack trace:', error.stack || 'N/A');
+        console.error('=======================================================');
         throw error;
       }
 
-      console.log('Inserção realizada com sucesso na tabela Registro_intercorrencia!');
-      console.log('Número de registros inseridos:', data?.length || 0);
-      console.log('Dados inseridos:', data);
-      console.log('==========================================');
+      console.log('✅ Registros inseridos com sucesso no banco de dados');
+      console.log('Dados retornados pelo Supabase:', data);
+      console.log('=== FIM DO REGISTRO INTERCORRÊNCIA SERVICE ===');
 
-      return { data, error: null };
+      return { data: data as RegistroIntercorrenciaOutput[], error: null };
     } catch (error) {
       console.error('=== ERRO CRÍTICO NO REGISTRO INTERCORRÊNCIA SERVICE ===');
       console.error('Erro ao inserir registros na tabela Registro_intercorrencia:', error);
       console.error('Stack trace:', error instanceof Error ? error.stack : 'N/A');
       console.error('=======================================================');
-      return { data: null, error: error instanceof Error ? error : new Error(String(error)) };
+      
+      const errorObj = error instanceof Error ? error : new Error(String(error));
+      return { data: null, error: errorObj };
     }
   }
 
   /**
-   * Busca registros de intercorrência com detalhes das intercorrências
-   * @param id_aula ID da aula
+   * Busca registros de intercorrência com detalhes das intercorrências por progresso
+   * @param id_progresso_atividade ID do progresso da atividade
    * @returns Promise com registros e detalhes das intercorrências
    */
-  async buscarComDetalhes(id_aula: number): Promise<{ data: any[] | null; error: any }> {
+  async buscarComDetalhes(id_progresso_atividade: number): Promise<{ data: any[] | null; error: any }> {
     try {
-      // Primeiro, vamos tentar buscar apenas os registros básicos para debug
       console.log('=== DEBUG: Buscando registros de intercorrência ===');
-      console.log('ID da aula:', id_aula);
+      console.log('ID do progresso da atividade:', id_progresso_atividade);
       
-      const { data: registrosBasicos, error: erroBasico } = await supabase
-        .from('Registro_intercorrencia')
-        .select('*')
-        .eq('id_aula', id_aula);
-
-      console.log('Registros básicos encontrados:', registrosBasicos);
-      console.log('Erro básico:', erroBasico);
-
-      if (erroBasico) {
-        console.error('Erro ao buscar registros básicos:', erroBasico);
-        return { data: null, error: erroBasico };
-      }
-
-      // Se não há registros, retorna array vazio
-      if (!registrosBasicos || registrosBasicos.length === 0) {
-        console.log('Nenhum registro de intercorrência encontrado para esta aula');
-        return { data: [], error: null };
-      }
-
-      // Agora vamos tentar a query com JOIN usando as colunas corretas
-      console.log('Tentando query com relacionamento...');
       const { data, error } = await supabase
         .from('Registro_intercorrencia')
         .select(`
           id_registro_intercorrencia,
-          id_aula,
+          id_progresso_atividade,
           frequencia,
           intensidade,
           Intercorrencia (
@@ -153,7 +116,7 @@ class RegistroIntercorrenciaService {
             nome
           )
         `)
-        .eq('id_aula', id_aula);
+        .eq('id_progresso_atividade', id_progresso_atividade);
 
       console.log('Resultado da query com relacionamento:', data);
       console.log('Erro da query com relacionamento:', error);

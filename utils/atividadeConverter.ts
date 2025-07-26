@@ -59,6 +59,24 @@ export const converterAtividadesParaBanco = (atividades: AtividadeData[]): Criar
 };
 
 /**
+ * Converte múltiplas atividades mantendo o mapeamento de IDs temporários
+ */
+export const converterAtividadesComMapeamento = (atividades: AtividadeData[]): Array<CriarProgressoAtividadeInput & { idTemporario: string }> => {
+  return atividades
+    .map(atividade => {
+      const dadosConvertidos = converterAtividadeParaBanco(atividade);
+      if (dadosConvertidos) {
+        return {
+          ...dadosConvertidos,
+          idTemporario: atividade.id
+        };
+      }
+      return null;
+    })
+    .filter((atividade): atividade is CriarProgressoAtividadeInput & { idTemporario: string } => atividade !== null);
+};
+
+/**
  * Valida se uma atividade está pronta para ser salva
  */
 export const validarAtividadeParaSalvar = (atividade: AtividadeData): { valid: boolean; error?: string } => {

@@ -1,7 +1,7 @@
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { AprendizData, aprendizService } from '@/services/AprendizService';
 import { styles } from '@/styles/FormularioStyles';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -25,7 +25,8 @@ const SeletorAprendiz: React.FC<SeletorAprendizProps> = ({
   const [aprendizes, setAprendizes] = useState<AprendizData[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const carregarAprendizes = async () => {
+  // Memoizar função de carregamento para evitar loops
+  const carregarAprendizes = useCallback(async () => {
     try {
       setLoading(true);
       const { data, error } = await aprendizService.buscarTodos();
@@ -43,13 +44,13 @@ const SeletorAprendiz: React.FC<SeletorAprendizProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (modalVisible) {
       carregarAprendizes();
     }
-  }, [modalVisible]);
+  }, [modalVisible, carregarAprendizes]);
 
   const selecionarAprendiz = (aprendiz: AprendizData) => {
     onSelecionar(aprendiz.nome);
