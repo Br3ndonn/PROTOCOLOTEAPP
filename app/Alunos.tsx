@@ -129,6 +129,9 @@ export default function AlunosScreen() {
       subtitle="Protocolo TEA"
       showBackButton={false}
     >
+      {/* Espaço entre header e campo de busca */}
+      <View style={{ height: 24 }} />
+
       {/* Campo de busca */}
       <View style={styles.searchContainer}>
         <IconSymbol name="magnifyingglass" size={20} color="#9ca3af" />

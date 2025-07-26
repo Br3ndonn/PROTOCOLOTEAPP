@@ -23,10 +23,11 @@ const Header: React.FC<HeaderProps> = ({
   const router = useRouter();
   const pathname = usePathname();
 
-  // Determinar se deve mostrar o botão de voltar automaticamente
-  const shouldShowBackButton = showBackButton !== undefined 
-    ? showBackButton 
-    : pathname !== '/LoginScreen' && pathname !== '/Alunos';
+  // Determinar se deve mostrar o ícone de perfil (apenas na tela de alunos)
+  const shouldShowProfileIcon = pathname === '/Alunos';
+  
+  // Determinar se deve mostrar o botão de voltar (em todas as telas exceto alunos e login)
+  const shouldShowBackButton = !shouldShowProfileIcon && pathname !== '/LoginScreen';
 
   const handleLogout = () => {
     Alert.alert(
@@ -55,34 +56,33 @@ const Header: React.FC<HeaderProps> = ({
     }
   };
 
+  const handleProfilePress = () => {
+    router.push('/PerfilProfessor');
+  };
+
   return (
     <View style={styles.header}>
-      {/* Botão de Voltar */}
+      {/* Ícone de Perfil (apenas na tela de alunos) ou Botão de Voltar */}
       <View style={styles.sideButtonContainer}>
-        {shouldShowBackButton && (
-          <TouchableOpacity onPress={handleBackPress} style={styles.iconButton}>
-            <IconSymbol name="chevron.left" size={26} color="#6366f1" />
+        {shouldShowProfileIcon ? (
+          <TouchableOpacity onPress={handleProfilePress} style={styles.iconButton}>
+            <IconSymbol name="person.circle" size={28} color="#ffffff" />
           </TouchableOpacity>
-        )}
+        ) : shouldShowBackButton ? (
+          <TouchableOpacity onPress={handleBackPress} style={styles.iconButton}>
+            <IconSymbol name="chevron.left" size={26} color="#ffffff" />
+          </TouchableOpacity>
+        ) : null}
       </View>
+      
       {/* Conteúdo central do Header */}
       <View style={styles.centerContent}>
-        <Text style={styles.title}>{title}</Text>
-        {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
-        {user && (
-          <Text style={styles.userInfo} numberOfLines={1}>
-            Olá, {user.user_metadata?.nome_completo || user.email}
-          </Text>
-        )}
+        <Text style={styles.title}>Protocolo TEA</Text>
+        {title && <Text style={styles.subtitle}>{title}</Text>}
       </View>
-      {/* Botão de Logout */}
-      <View style={styles.sideButtonContainer}>
-        {showLogout && (
-          <TouchableOpacity onPress={handleLogout} style={styles.iconButton}>
-            <IconSymbol name="rectangle.portrait.and.arrow.right" size={24} color="#ef4444" />
-          </TouchableOpacity>
-        )}
-      </View>
+      
+      {/* Espaço vazio do lado direito para manter simetria */}
+      <View style={styles.sideButtonContainer} />
     </View>
   );
 };
@@ -93,15 +93,17 @@ const styles = {
     alignItems: 'center' as const,
     justifyContent: 'space-between' as const,
     paddingHorizontal: 16,
-    paddingTop: 18,
+    paddingTop: 36,
     paddingBottom: 14,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#6366f1',
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    borderBottomColor: '#4f46e5',
     minHeight: 70,
-    // boxShadow para web
-    boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-    elevation: 2,
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 6,
     zIndex: 10,
   },
   sideButtonContainer: {
@@ -112,13 +114,12 @@ const styles = {
   iconButton: {
     padding: 8,
     borderRadius: 20,
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 2,
-    // boxShadow para web
-    boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   centerContent: {
     flex: 1,
@@ -127,25 +128,16 @@ const styles = {
     gap: 2,
   },
   title: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: 'bold' as const,
-    color: '#1f2937',
-    letterSpacing: 0.2,
+    color: '#ffffff',
+    letterSpacing: 0.3,
   },
   subtitle: {
-    fontSize: 15,
-    color: '#6366f1',
-    marginTop: 2,
+    fontSize: 14,
+    color: '#e0e7ff',
     fontWeight: '500' as const,
     letterSpacing: 0.1,
-  },
-  userInfo: {
-    fontSize: 13,
-    color: '#64748b',
-    marginTop: 2,
-    maxWidth: 180,
-    textAlign: 'center' as const,
-    fontStyle: 'italic' as const,
   },
 };
 

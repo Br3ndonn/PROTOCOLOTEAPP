@@ -297,8 +297,8 @@ export default function AlunoDetalhesScreen() {
                 </View>
                 <IconSymbol 
                   name={ultimaAulaExpanded ? "chevron.up" : "chevron.down"} 
-                  size={16} 
-                  color="#6b7280" 
+                  size={24} 
+                  color="#6366f1" 
                 />
               </TouchableOpacity>
 
@@ -535,6 +535,9 @@ export default function AlunoDetalhesScreen() {
           </>
         )}
       </ScrollView>
+
+      {/* Espaço entre informações e botão nova aula */}
+      <View style={{ height: 16 }} />
 
       {/* Botão Nova Aula fixo na parte inferior */}
       <View style={styles.bottomContainer}>
