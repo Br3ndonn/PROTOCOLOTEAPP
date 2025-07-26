@@ -6,12 +6,12 @@ import { styles } from '@/styles/AlunoDetalhesStyles';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Alert,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 
 export default function AlunoDetalhesScreen() {

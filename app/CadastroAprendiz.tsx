@@ -1,22 +1,27 @@
 import ScreenWrapper from '@/components/shared/ScreenWrapper';
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import { Qualidade } from '@/services/AprendizService';
 import { styles } from '@/styles/CadastroAprendizStyles';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    Switch,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Switch,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 
 // Tipos para o formulário
-type Sexo = 'masculino' | 'feminino' | 'outro';
+enum Sexo {
+  Masculino = 'Masculino',
+  Feminino = 'Feminino',
+  Outro = 'Outro'
+}
 
 interface FormDataAprendiz {
   nome: string;
@@ -28,8 +33,8 @@ interface FormDataAprendiz {
   qualidades: string[];
   carComprVida: string[];
   medicamentos: string[];
-  qualiSono: string;
-  alimentacao: string;
+  qualiSono: Qualidade;
+  alimentacao: Qualidade;
   partEdFisica: string;
   envivolExerFis: string;
   interesses: string[];
@@ -42,15 +47,15 @@ const CadastroAprendizScreen = () => {
   const [formData, setFormData] = useState<FormDataAprendiz>({
     nome: '',
     dataNascimento: '',
-    sexo: 'masculino',
+    sexo: Sexo.Masculino,
     diagnostico: false,
     idadeDiagnostico: '',
     irmaos: false,
     qualidades: [],
     carComprVida: [],
     medicamentos: [],
-    qualiSono: '',
-    alimentacao: '',
+    qualiSono: Qualidade.Regular,
+    alimentacao: Qualidade.Regular,
     partEdFisica: '',
     envivolExerFis: '',
     interesses: [],
@@ -174,15 +179,15 @@ const CadastroAprendizScreen = () => {
             setFormData({
               nome: '',
               dataNascimento: '',
-              sexo: 'masculino',
+              sexo: Sexo.Masculino,
               diagnostico: false,
               idadeDiagnostico: '',
               irmaos: false,
               qualidades: [],
               carComprVida: [],
               medicamentos: [],
-              qualiSono: '',
-              alimentacao: '',
+              qualiSono: Qualidade.Regular,
+              alimentacao: Qualidade.Regular,
               partEdFisica: '',
               envivolExerFis: '',
               interesses: [],
@@ -287,7 +292,7 @@ const CadastroAprendizScreen = () => {
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Sexo</Text>
               <View style={styles.radioContainer}>
-                {(['masculino', 'feminino', 'outro'] as Sexo[]).map((opcao) => (
+                {[Sexo.Masculino, Sexo.Feminino, Sexo.Outro].map((opcao) => (
                   <TouchableOpacity
                     key={opcao}
                     style={styles.radioOption}
@@ -298,7 +303,7 @@ const CadastroAprendizScreen = () => {
                       formData.sexo === opcao && styles.radioSelected
                     ]} />
                     <Text style={styles.radioText}>
-                      {opcao.charAt(0).toUpperCase() + opcao.slice(1)}
+                      {opcao}
                     </Text>
                   </TouchableOpacity>
                 ))}
@@ -375,7 +380,7 @@ const CadastroAprendizScreen = () => {
           {/* Saúde */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Saúde</Text>
-            
+
             {renderArrayField(
               'Medicamentos',
               formData.medicamentos,
@@ -387,26 +392,40 @@ const CadastroAprendizScreen = () => {
 
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Qualidade do Sono</Text>
-              <TextInput
-                style={styles.textArea}
-                value={formData.qualiSono}
-                onChangeText={(text) => updateFormData('qualiSono', text)}
-                placeholder="Descreva a qualidade do sono"
-                multiline
-                numberOfLines={3}
-              />
+              <View style={styles.radioContainer}>
+                {Object.values(Qualidade).map((opcao) => (
+                  <TouchableOpacity
+                    key={opcao}
+                    style={styles.radioOption}
+                    onPress={() => updateFormData('qualiSono', opcao)}
+                  >
+                    <View style={[
+                      styles.radioCircle,
+                      formData.qualiSono === opcao && styles.radioSelected
+                    ]} />
+                    <Text style={styles.radioText}>{opcao}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
 
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Alimentação</Text>
-              <TextInput
-                style={styles.textArea}
-                value={formData.alimentacao}
-                onChangeText={(text) => updateFormData('alimentacao', text)}
-                placeholder="Descreva os hábitos alimentares"
-                multiline
-                numberOfLines={3}
-              />
+              <View style={styles.radioContainer}>
+                {Object.values(Qualidade).map((opcao) => (
+                  <TouchableOpacity
+                    key={opcao}
+                    style={styles.radioOption}
+                    onPress={() => updateFormData('alimentacao', opcao)}
+                  >
+                    <View style={[
+                      styles.radioCircle,
+                      formData.alimentacao === opcao && styles.radioSelected
+                    ]} />
+                    <Text style={styles.radioText}>{opcao}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
           </View>
 

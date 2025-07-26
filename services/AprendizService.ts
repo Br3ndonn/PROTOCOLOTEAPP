@@ -1,4 +1,9 @@
-import { supabase } from '../utils/supabase';
+export enum Qualidade {
+  Bom = 'Bom',
+  Regular = 'Regular',
+  Ruim = 'Ruim',
+  Pessimo = 'Pessimo'
+};
 
 export interface AprendizData {
   id_aprendiz: string;
@@ -7,14 +12,13 @@ export interface AprendizData {
   diagnostico: boolean;
   created_at?: string;
   updated_at?: string;
-  // Campos adicionais para informações complementares
   idade_diagnostico?: number;
   irmaos?: boolean;
   qualidades?: string[];
   caracteristica_compr_vida?: string[];
   medicamentos?: string[];
-  qualidade_sono?: string;
-  alimentacao?: string;
+  qualidade_sono?: Qualidade;
+  alimentacao?: Qualidade;
   part_ed_fisica?: string;
   envolvimento_exer_fis?: string;
   interesses?: string[];
@@ -22,13 +26,11 @@ export interface AprendizData {
   objetivo_longo_prazo?: string[];
 }
 
-// Tipo helper para compatibilidade com componentes que usam 'id'
 export interface AprendizDisplay {
-  id: string; // Mapeado de id_aprendiz
+  id: string;
   nome: string;
   data_nascimento: string;
   diagnostico: boolean;
-  // Campos adicionais para informações complementares
   idade_diagnostico?: number;
   irmaos?: boolean;
   qualidades?: string[];
@@ -43,7 +45,6 @@ export interface AprendizDisplay {
   objetivo_longo_prazo?: string[];
 }
 
-// Função helper para converter AprendizData para AprendizDisplay
 export const mapAprendizToDisplay = (aprendiz: AprendizData): AprendizDisplay => ({
   id: aprendiz.id_aprendiz,
   nome: aprendiz.nome,
@@ -63,11 +64,17 @@ export const mapAprendizToDisplay = (aprendiz: AprendizData): AprendizDisplay =>
   objetivo_longo_prazo: aprendiz.objetivo_longo_prazo
 });
 
+// Agora o serviço recebe o client por parâmetro
 class AprendizService {
-  // Buscar todos os aprendizes
+  private db: any;
+
+  constructor(dbClient: any) {
+    this.db = dbClient;
+  }
+
   async buscarTodos(): Promise<{ data: AprendizData[] | null; error: any }> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await this.db
         .from('Aprendiz')
         .select('id_aprendiz, nome, data_nascimento, diagnostico')
         .order('nome', { ascending: true });
@@ -84,10 +91,9 @@ class AprendizService {
     }
   }
 
-  // Buscar aprendiz por ID
   async buscarPorId(id: string): Promise<{ data: AprendizData | null; error: any }> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await this.db
         .from('Aprendiz')
         .select(`
           id_aprendiz, 
@@ -122,10 +128,9 @@ class AprendizService {
     }
   }
 
-  // Criar novo aprendiz
   async criar(dados: Omit<AprendizData, 'id_aprendiz' | 'created_at' | 'updated_at'>): Promise<{ data: AprendizData | null; error: any }> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await this.db
         .from('Aprendiz')
         .insert([dados])
         .select('id_aprendiz, nome, data_nascimento, diagnostico')
@@ -143,10 +148,9 @@ class AprendizService {
     }
   }
 
-  // Atualizar aprendiz
   async atualizar(id: string, dados: Partial<Omit<AprendizData, 'id_aprendiz' | 'created_at' | 'updated_at'>>): Promise<{ data: AprendizData | null; error: any }> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await this.db
         .from('Aprendiz')
         .update(dados)
         .eq('id_aprendiz', id)
@@ -165,10 +169,9 @@ class AprendizService {
     }
   }
 
-  // Deletar aprendiz
   async deletar(id: string): Promise<{ success: boolean; error: any }> {
     try {
-      const { error } = await supabase
+      const { error } = await this.db
         .from('Aprendiz')
         .delete()
         .eq('id_aprendiz', id);
@@ -186,4 +189,6 @@ class AprendizService {
   }
 }
 
-export const aprendizService = new AprendizService();
+// Exemplo de uso:
+import { supabase } from '../utils/supabase';
+export const aprendizService = new AprendizService(supabase);
