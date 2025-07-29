@@ -1,21 +1,21 @@
 import { useState, useCallback } from 'react';
-import { aulaService } from '@/services/AulaService';
+import { requisicaoService } from '@/api/requisicao';
 
 interface UltimaAulaInfo {
+  id_aula: number;
+  id_planejamento_intervencao: number;
   data_aula: string;
-  id_professor?: string;
-  atividades?: Array<{
+  atividades: Array<{
     nome_atividade: string;
     pontuacao: number;
     completude: string;
     tentativas: number;
     observacoes?: string;
   }>;
-  intercorrencias?: Array<{
-    tipo: string;
-    descricao: string;
-    frequencia?: number;
-    intensidade?: number;
+  intercorrencias: Array<{
+    id_progresso_atividade: number;
+    frequencia: number;
+    intensidade: number;
   }>;
 }
 
@@ -29,20 +29,19 @@ export const useUltimaAula = () => {
 
     try {
       setLoading(true);
-      const { data, error: aulaError } = await aulaService.buscarResumoUltimaAula(aprendizId);
+      console.log('Carregando última aula para aprendiz:', aprendizId);
       
-      if (aulaError) {
-        console.log('Nenhuma aula encontrada ou erro:', aulaError);
+      const { data, error } = await requisicaoService.get(`/aula/ultima/${aprendizId}`);
+      
+      if (error) {
+        console.log('Erro ao buscar última aula:', error);
         setUltimaAulaInfo(null);
         return;
       }
 
       if (data) {
-        setUltimaAulaInfo({
-          ...data,
-          atividades: data.atividades || [],
-          intercorrencias: data.intercorrencias || []
-        });
+        console.log('Dados da última aula recebidos:', data);
+        setUltimaAulaInfo(data);
       } else {
         setUltimaAulaInfo(null);
       }

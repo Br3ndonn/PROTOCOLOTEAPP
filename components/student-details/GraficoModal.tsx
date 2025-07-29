@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Modal, Image, TouchableOpacity, Dimensions, Alert } from 'react-native';
+import { View, Text, Modal, Image, TouchableOpacity, Dimensions, Alert, Platform } from 'react-native';
 
 interface GraficoModalProps {
   visible: boolean;
@@ -8,6 +8,25 @@ interface GraficoModalProps {
 }
 
 export const GraficoModal: React.FC<GraficoModalProps> = ({ visible, graficoUrl, onClose }) => {
+  const showUrlAlert = () => {
+    if (Platform.OS === 'web') {
+      // Para web, usar window.alert
+      window.alert(`URL da Imagem: ${graficoUrl || 'URL não disponível'}`);
+    } else {
+      // Para mobile, usar Alert.alert
+      Alert.alert('URL da Imagem', graficoUrl || 'URL não disponível');
+    }
+  };
+
+  const handleImageError = (error: any) => {
+    console.error('Erro ao carregar imagem:', error);
+    if (Platform.OS === 'web') {
+      window.alert('Erro: Não foi possível carregar a imagem do gráfico');
+    } else {
+      Alert.alert('Erro', 'Não foi possível carregar a imagem do gráfico');
+    }
+  };
+
   return (
     <Modal
       visible={visible}
@@ -48,8 +67,7 @@ export const GraficoModal: React.FC<GraficoModalProps> = ({ visible, graficoUrl,
                 resizeMode: 'contain'
               }}
               onError={(error) => {
-                console.error('Erro ao carregar imagem:', error);
-                Alert.alert('Erro', 'Não foi possível carregar a imagem do gráfico');
+                handleImageError(error);
               }}
             />
           )}
@@ -68,10 +86,7 @@ export const GraficoModal: React.FC<GraficoModalProps> = ({ visible, graficoUrl,
                 flex: 1,
                 marginRight: 10
               }}
-              onPress={() => {
-                console.log('URL da imagem:', graficoUrl);
-                Alert.alert('URL da Imagem', graficoUrl || 'URL não disponível');
-              }}
+              onPress={showUrlAlert}
             >
               <Text style={{ color: 'white', textAlign: 'center' }}>Ver URL</Text>
             </TouchableOpacity>

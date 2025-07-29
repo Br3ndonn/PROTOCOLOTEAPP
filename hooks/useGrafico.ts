@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import { requisicaoService } from '@/api/requisicao';
 
 interface GraficoHook {
@@ -14,6 +14,14 @@ export const useGrafico = (): GraficoHook => {
   const [modalVisible, setModalVisible] = useState(false);
   const [graficoUrl, setGraficoUrl] = useState<string | null>(null);
 
+  const showAlert = (title: string, message: string) => {
+    if (Platform.OS === 'web') {
+      window.alert(`${title}\n\n${message}`);
+    } else {
+      Alert.alert(title, message);
+    }
+  };
+
   const testarConectividade = useCallback(async () => {
     try {
       console.log('Testando conectividade básica...');
@@ -21,21 +29,21 @@ export const useGrafico = (): GraficoHook => {
       const { data, error } = await requisicaoService.get('/');
       
       if (error) {
-        Alert.alert(
+        showAlert(
           'Problema de Conectividade', 
           `❌ API não está acessível.\n\n📋 Checklist:\n\n1️⃣ Sua API está rodando?\n2️⃣ Está configurada para aceitar conexões externas?\n   • FastAPI: uvicorn main:app --host 0.0.0.0 --port 8000\n   • Express: app.listen(8000, '0.0.0.0')\n3️⃣ Firewall não está bloqueando a porta 8000?\n4️⃣ Dispositivos estão na mesma rede WiFi?\n\n🔗 URL testada: http://192.168.1.10:8000/\n\n❗ Erro: ${error}`
         );
         return;
       }
 
-      Alert.alert(
+      showAlert(
         '✅ Conectividade OK!', 
         'Conexão com a API estabelecida com sucesso!\n\nAgora você pode gerar gráficos!'
       );
 
     } catch (error) {
       console.error('Erro ao testar conectividade:', error);
-      Alert.alert(
+      showAlert(
         'Erro de Rede', 
         `❌ Falha na conectividade.\n\n🔧 Verifique:\n• API rodando em http://192.168.1.10:8000\n• Mesmo WiFi em ambos dispositivos\n• Firewall/antivírus não bloqueando\n\n📱 Erro técnico: ${error instanceof Error ? error.message : 'Erro desconhecido'}`
       );
@@ -52,7 +60,7 @@ export const useGrafico = (): GraficoHook => {
       const { data, error } = await requisicaoService.get(url);
       
       if (error) {
-        Alert.alert(
+        showAlert(
           'Gráfico não encontrado', 
           `⚠️ Não foi possível gerar o gráfico.\n\n🔗 URL: ${url}\n\n💡 Verifique se:\n• O endpoint está implementado\n• O ID da atividade (${idPlanejamento}) existe\n• Há dados suficientes para gerar o gráfico\n\n❗ Erro: ${error}`
         );
@@ -66,7 +74,7 @@ export const useGrafico = (): GraficoHook => {
 
     } catch (error) {
       console.error('Erro ao gerar gráfico:', error);
-      Alert.alert(
+      showAlert(
         'Erro ao Gerar Gráfico', 
         `❌ Erro inesperado ao gerar gráfico.\n\n📱 Erro técnico: ${error instanceof Error ? error.message : 'Erro desconhecido'}`
       );

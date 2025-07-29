@@ -1,23 +1,23 @@
-import React from 'react';
-import { View, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { styles } from '@/styles/AlunoDetalhesStyles';
+import React from 'react';
+import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 
 interface UltimaAulaInfo {
+  id_aula: number;
+  id_planejamento_intervencao: number;
   data_aula: string;
-  id_professor?: string;
-  atividades?: Array<{
+  atividades: Array<{
     nome_atividade: string;
     pontuacao: number;
     completude: string;
     tentativas: number;
     observacoes?: string;
   }>;
-  intercorrencias?: Array<{
-    tipo: string;
-    descricao: string;
-    frequencia?: number;
-    intensidade?: number;
+  intercorrencias: Array<{
+    id_progresso_atividade: number;
+    frequencia: number;
+    intensidade: number;
   }>;
 }
 
@@ -119,7 +119,7 @@ export const UltimaAulaSection: React.FC<UltimaAulaSectionProps> = ({
                 </View>
               )}
 
-              {/* Intercorrências registradas */}
+              {/* Intercorrências registradas 
               {ultimaAulaInfo.intercorrencias && ultimaAulaInfo.intercorrencias.length > 0 && (
                 <View style={styles.ultimaAulaSection}>
                   <Text style={styles.ultimaAulaSectionTitle}>Intercorrências Registradas</Text>
@@ -127,29 +127,20 @@ export const UltimaAulaSection: React.FC<UltimaAulaSectionProps> = ({
                     <View key={index} style={styles.intercorrenciaItem}>
                       <View style={styles.intercorrenciaHeader}>
                         <IconSymbol name="exclamationmark.triangle.fill" size={16} color="#f59e0b" />
-                        <Text style={styles.intercorrenciaTipo}>{intercorrencia.tipo}</Text>
+                        <Text style={styles.intercorrenciaTipo}>Intercorrência {index + 1}</Text>
                       </View>
-                      <Text style={styles.intercorrenciaDescricao}>
-                        {intercorrencia.descricao}
-                      </Text>
-                      {(intercorrencia.frequencia !== undefined || intercorrencia.intensidade !== undefined) && (
-                        <View style={styles.intercorrenciaDetalhes}>
-                          {intercorrencia.frequencia !== undefined && (
-                            <Text style={styles.intercorrenciaDetalhe}>
-                              Frequência: {intercorrencia.frequencia}
-                            </Text>
-                          )}
-                          {intercorrencia.intensidade !== undefined && (
-                            <Text style={styles.intercorrenciaDetalhe}>
-                              Intensidade: {intercorrencia.intensidade}
-                            </Text>
-                          )}
-                        </View>
-                      )}
+                      <View style={styles.intercorrenciaDetalhes}>
+                        <Text style={styles.intercorrenciaDetalhe}>
+                          Frequência: {intercorrencia.frequencia}
+                        </Text>
+                        <Text style={styles.intercorrenciaDetalhe}>
+                          Intensidade: {intercorrencia.intensidade}
+                        </Text>
+                      </View>
                     </View>
                   ))}
                 </View>
-              )}
+              )}*/}
 
               {/* Caso não tenha atividades nem intercorrências */}
               {(!ultimaAulaInfo.atividades || ultimaAulaInfo.atividades.length === 0) && 
