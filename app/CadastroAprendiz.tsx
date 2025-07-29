@@ -1,9 +1,9 @@
+import React, { useState } from 'react';
 import ScreenWrapper from '@/components/shared/ScreenWrapper';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Qualidade } from '@/services/AprendizService';
 import { styles } from '@/styles/CadastroAprendizStyles';
 import { router } from 'expo-router';
-import React, { useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -15,11 +15,22 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-
-// Tipos para o formulário
+import { Picker } from '@react-native-picker/picker';
 enum Sexo {
   Masculino = 'Masculino',
   Feminino = 'Feminino',
+  Outro = 'Outro'
+}
+
+enum Parentesco {
+  Pai = 'Pai',
+  Mãe = 'Mãe',
+  Avô = 'Avô',
+  Avó = 'Avó',
+  Tio = 'Tio',
+  Tia = 'Tia',
+  Irmão = 'Irmão',
+  Irmã = 'Irmã',
   Outro = 'Outro'
 }
 
@@ -41,6 +52,10 @@ interface FormDataAprendiz {
   objCurtoPrazo: string[];
   objLongoPrazo: string[];
   responsavelId: string;
+  responsavelNome: string;
+  responsavelParentesco: Parentesco;
+  responsavelEmail?: string;
+  responsavelTelefone?: string;
 }
 
 const CadastroAprendizScreen = () => {
@@ -61,7 +76,11 @@ const CadastroAprendizScreen = () => {
     interesses: [],
     objCurtoPrazo: [],
     objLongoPrazo: [],
-    responsavelId: ''
+    responsavelId: '',
+    responsavelNome: '',
+    responsavelParentesco: Parentesco.Pai,
+    responsavelEmail: '',
+    responsavelTelefone: ''
   });
 
   const [loading, setLoading] = useState(false);
@@ -87,8 +106,12 @@ const CadastroAprendizScreen = () => {
   ) => {
     if (novoItem.trim()) {
       const itemsAtuais = formData[campo] as string[];
-      updateFormData(campo, [...itemsAtuais, novoItem.trim()]);
+      const novosItems = [...itemsAtuais, novoItem.trim()];
+      updateFormData(campo, novosItems);
       setNovoItem('');
+      if (campo === 'qualidades') {
+        console.log('Qualidades atualizadas:', novosItems);
+      }
     }
   };
 
@@ -96,6 +119,9 @@ const CadastroAprendizScreen = () => {
     const itemsAtuais = formData[campo] as string[];
     const novosItems = itemsAtuais.filter((_, i) => i !== index);
     updateFormData(campo, novosItems);
+    if (campo === 'qualidades') {
+      console.log('Qualidades após remoção:', novosItems);
+    }
   };
 
   const validarFormulario = (): string[] => {
@@ -193,7 +219,11 @@ const CadastroAprendizScreen = () => {
               interesses: [],
               objCurtoPrazo: [],
               objLongoPrazo: [],
-              responsavelId: ''
+              responsavelId: '',
+              responsavelNome: '',
+              responsavelParentesco: Parentesco.Pai,
+              responsavelEmail: '',
+              responsavelTelefone: ''
             });
             setErrors([]);
           }
@@ -212,7 +242,6 @@ const CadastroAprendizScreen = () => {
   ) => (
     <View style={styles.arrayFieldContainer}>
       <Text style={styles.arrayFieldTitle}>{titulo}</Text>
-      
       {/* Input para adicionar novo item */}
       <View style={styles.addItemContainer}>
         <TextInput
@@ -230,7 +259,7 @@ const CadastroAprendizScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Lista de itens */}
+      {/* Lista de itens com botão de excluir */}
       {items.map((item, index) => (
         <View key={index} style={styles.arrayItem}>
           <Text style={styles.arrayItemText}>{item}</Text>
@@ -238,7 +267,7 @@ const CadastroAprendizScreen = () => {
             style={styles.removeItemButton}
             onPress={() => removerItem(index, campo)}
           >
-            <IconSymbol name="trash" size={16} color="#FF3B30" />
+            <IconSymbol name="trash" size={18} color="#FF3B30" />
           </TouchableOpacity>
         </View>
       ))}
@@ -254,7 +283,11 @@ const CadastroAprendizScreen = () => {
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={true}
+          contentContainerStyle={{ paddingBottom: 32 }}
+        >
           {/* Erros de validação */}
           {errors.length > 0 && (
             <View style={styles.errorContainer}>
@@ -273,7 +306,7 @@ const CadastroAprendizScreen = () => {
               <TextInput
                 style={styles.input}
                 value={formData.nome}
-                onChangeText={(text) => updateFormData('nome', text)}
+                onChangeText={(text: string) => updateFormData('nome', text)}
                 placeholder="Digite o nome completo"
               />
             </View>
@@ -283,7 +316,7 @@ const CadastroAprendizScreen = () => {
               <TextInput
                 style={styles.input}
                 value={formData.dataNascimento}
-                onChangeText={(text) => updateFormData('dataNascimento', text)}
+                onChangeText={(text: string) => updateFormData('dataNascimento', text)}
                 placeholder="DD/MM/AAAA"
                 keyboardType="numeric"
               />
@@ -319,7 +352,7 @@ const CadastroAprendizScreen = () => {
               <Text style={styles.label}>Possui diagnóstico formal?</Text>
               <Switch
                 value={formData.diagnostico}
-                onValueChange={(value) => updateFormData('diagnostico', value)}
+                onValueChange={(value: boolean) => updateFormData('diagnostico', value)}
                 trackColor={{ false: '#767577', true: '#81b0ff' }}
                 thumbColor={formData.diagnostico ? '#007AFF' : '#f4f3f4'}
               />
@@ -331,7 +364,7 @@ const CadastroAprendizScreen = () => {
                 <TextInput
                   style={styles.input}
                   value={formData.idadeDiagnostico}
-                  onChangeText={(text) => updateFormData('idadeDiagnostico', text)}
+                  onChangeText={(text: string) => updateFormData('idadeDiagnostico', text)}
                   placeholder="Digite a idade"
                   keyboardType="numeric"
                 />
@@ -347,11 +380,56 @@ const CadastroAprendizScreen = () => {
               <Text style={styles.label}>Possui irmãos?</Text>
               <Switch
                 value={formData.irmaos}
-                onValueChange={(value) => updateFormData('irmaos', value)}
+                onValueChange={(value: boolean) => updateFormData('irmaos', value)}
                 trackColor={{ false: '#767577', true: '#81b0ff' }}
                 thumbColor={formData.irmaos ? '#007AFF' : '#f4f3f4'}
               />
             </View>
+
+   {/* Cadastro de Responsável */}
+   <View style={styles.inputContainer}>
+     <Text style={styles.label}>Nome do Responsável</Text>
+     <TextInput
+       style={styles.input}
+       value={formData.responsavelNome}
+       onChangeText={(text: string) => updateFormData('responsavelNome', text)}
+       placeholder="Digite o nome do responsável"
+     />
+   </View>
+   <View style={styles.inputContainer}>
+     <Text style={styles.label}>Parentesco</Text>
+     <View style={{ borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 8, backgroundColor: '#f1f5f9' }}>
+       <Picker
+         selectedValue={formData.responsavelParentesco}
+         onValueChange={(itemValue: Parentesco) => updateFormData('responsavelParentesco', itemValue)}
+         style={{ height: 48, width: '100%' }}
+       >
+         {Object.values(Parentesco).map((opcao) => (
+           <Picker.Item key={opcao} label={opcao} value={opcao} />
+         ))}
+       </Picker>
+     </View>
+   </View>
+   <View style={styles.inputContainer}>
+     <Text style={styles.label}>Email do Responsável (opcional)</Text>
+     <TextInput
+       style={styles.input}
+       value={formData.responsavelEmail}
+       onChangeText={(text: string) => updateFormData('responsavelEmail', text)}
+       placeholder="Email do responsável"
+       keyboardType="email-address"
+     />
+   </View>
+   <View style={styles.inputContainer}>
+     <Text style={styles.label}>Telefone do Responsável (opcional)</Text>
+     <TextInput
+       style={styles.input}
+       value={formData.responsavelTelefone}
+       onChangeText={(text: string) => updateFormData('responsavelTelefone', text)}
+       placeholder="Telefone do responsável"
+       keyboardType="phone-pad"
+     />
+   </View>
           </View>
 
           {/* Características */}
@@ -438,7 +516,7 @@ const CadastroAprendizScreen = () => {
               <TextInput
                 style={styles.textArea}
                 value={formData.partEdFisica}
-                onChangeText={(text) => updateFormData('partEdFisica', text)}
+                onChangeText={(text: string) => updateFormData('partEdFisica', text)}
                 placeholder="Como participa das aulas de educação física?"
                 multiline
                 numberOfLines={3}

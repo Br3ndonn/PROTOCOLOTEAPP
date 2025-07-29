@@ -3,225 +3,205 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#f8fafc',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  
   scrollView: {
     flex: 1,
-    padding: 16,
+    padding: 32,
+    alignSelf: 'center',
+    maxWidth: 600,
+    width: '100%',
   },
-
-  // Seções
   section: {
-    marginBottom: 24,
-    backgroundColor: '#f8f9fa',
-    padding: 16,
-    borderRadius: 12,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 28,
+    marginBottom: 32,
     borderWidth: 1,
-    borderColor: '#e9ecef',
-    // boxShadow para web, mantendo o estilo do shadow*
-    boxShadow: '0px 2px 8px rgba(0,0,0,0.05)',
+    borderColor: '#e2e8f0',
+    alignSelf: 'center',
+    maxWidth: 600,
+    width: '100%',
+    boxShadow: '0px 4px 16px rgba(0,0,0,0.08)',
   },
-
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#343a40',
-    marginBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#dee2e6',
-    paddingBottom: 8,
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#6366f1',
+    marginBottom: 20,
+    textAlign: 'center',
   },
-
-  // Inputs
   inputContainer: {
-    marginBottom: 16,
+    marginBottom: 20,
   },
-
   label: {
+    fontSize: 15,
+    color: '#64748b',
+    marginBottom: 6,
+    fontWeight: '500',
+  },
+  input: {
+    backgroundColor: '#f1f5f9',
+    borderRadius: 8,
+    padding: 14,
+    fontSize: 17,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    marginBottom: 2,
+  },
+  textArea: {
+    backgroundColor: '#f1f5f9',
+    borderRadius: 8,
+    padding: 14,
+    fontSize: 17,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    minHeight: 70,
+    marginBottom: 2,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 16,
+    marginTop: 32,
+    marginBottom: 40,
+  },
+  button: {
+    flex: 1,
+    paddingVertical: 18,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginHorizontal: 0,
+    maxWidth: 220,
+  },
+  saveButton: {
+    backgroundColor: '#6366f1',
+    boxShadow: '0px 2px 8px rgba(99,102,241,0.15)',
+  },
+  clearButton: {
+    backgroundColor: '#e5e7eb',
+    boxShadow: '0px 2px 8px rgba(99,102,241,0.05)',
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 17,
+  },
+  clearButtonText: {
+    color: '#6366f1',
+    fontWeight: '700',
+    fontSize: 17,
+  },
+  errorContainer: {
+    backgroundColor: '#fee2e2',
+    borderRadius: 8,
+    padding: 14,
+    marginBottom: 18,
+    alignSelf: 'center',
+    maxWidth: 600,
+    width: '100%',
+  },
+  errorText: {
+    color: '#b91c1c',
+    fontSize: 15,
+    textAlign: 'center',
+  },
+  arrayFieldContainer: {
+    marginBottom: 20,
+  },
+  arrayFieldTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#495057',
-    marginBottom: 8,
+    color: '#374151',
+    marginBottom: 10,
+    textAlign: 'center',
   },
-
-  input: {
-    borderWidth: 1,
-    borderColor: '#ced4da',
+  addItemContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  addItemInput: {
+    flex: 1,
+    backgroundColor: '#f1f5f9',
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    backgroundColor: '#ffffff',
-    color: '#495057',
-  },
-
-  textArea: {
     borderWidth: 1,
-    borderColor: '#ced4da',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    backgroundColor: '#ffffff',
-    color: '#495057',
-    minHeight: 80,
-    textAlignVertical: 'top',
+    borderColor: '#e2e8f0',
+    marginRight: 8,
   },
-
-  // Radio buttons
+  addItemButton: {
+    backgroundColor: '#6366f1',
+    borderRadius: 8,
+    padding: 8,
+  },
+  arrayItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f3f4f6',
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    marginBottom: 6,
+    minHeight: 36,
+    flexWrap: 'nowrap',
+    maxWidth: 320,
+    alignSelf: 'flex-start',
+  },
+  arrayItemText: {
+    flex: 1,
+    fontSize: 16,
+    color: '#374151',
+    marginRight: 8,
+    flexShrink: 1,
+    flexWrap: 'wrap',
+  },
+  removeItemButton: {
+    marginLeft: 16,
+    padding: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 2,
+    backgroundColor: 'transparent',
+    position: 'relative',
+  },
   radioContainer: {
     flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+    justifyContent: 'center',
     gap: 16,
   },
-
   radioOption: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    marginRight: 0,
+    gap: 6,
   },
-
   radioCircle: {
     width: 20,
     height: 20,
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: '#6c757d',
-    backgroundColor: '#ffffff',
+    borderColor: '#6366f1',
+    marginRight: 6,
+    backgroundColor: '#fff',
   },
-
   radioSelected: {
-    borderColor: '#007AFF',
-    backgroundColor: '#007AFF',
+    backgroundColor: '#6366f1',
+    borderColor: '#6366f1',
   },
-
   radioText: {
     fontSize: 16,
-    color: '#495057',
+    color: '#374151',
   },
-
-  // Switch
   switchContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
-  },
-
-  // Array fields
-  arrayFieldContainer: {
+    justifyContent: 'space-between',
     marginBottom: 20,
-  },
-
-  arrayFieldTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#495057',
-    marginBottom: 12,
-  },
-
-  addItemContainer: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 12,
-  },
-
-  addItemInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: '#ced4da',
-    borderRadius: 8,
-    padding: 10,
-    fontSize: 14,
-    backgroundColor: '#ffffff',
-  },
-
-  addItemButton: {
-    backgroundColor: '#e3f2fd',
-    padding: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#007AFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    minWidth: 44,
-  },
-
-  arrayItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#ffffff',
-    padding: 12,
-    marginBottom: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#e9ecef',
-  },
-
-  arrayItemText: {
-    flex: 1,
-    fontSize: 14,
-    color: '#495057',
-  },
-
-  removeItemButton: {
-    backgroundColor: '#ffebee',
-    padding: 8,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#FF3B30',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  // Buttons
-  buttonContainer: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 16,
-    marginBottom: 32,
-  },
-
-  button: {
-    flex: 1,
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 48,
-  },
-
-  saveButton: {
-    backgroundColor: '#007AFF',
-  },
-
-  clearButton: {
-    backgroundColor: '#6c757d',
-  },
-
-  saveButtonText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-
-  clearButtonText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-
-  // Error display
-  errorContainer: {
-    backgroundColor: '#f8d7da',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#f1aeb5',
-  },
-
-  errorText: {
-    color: '#721c24',
-    fontSize: 14,
-    marginBottom: 4,
   },
 });
