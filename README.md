@@ -146,8 +146,8 @@ npm run web
 - **Registro de Aulas**: Documentação detalhada de cada sessão
 - **Avaliação de Desempenho**: Pontuação, completude, tentativas
 - **Intercorrências**: Registro de comportamentos e situações especiais
- - ![Interface](https://drive.google.com/file/d/1XPjSnST42FiQEFICkgU8aEGnmkYO0EjC/view?usp=drive_link)
- - ![Interface](https://drive.google.com/file/d/1fUjaP1grVMH-2JXvP4m-6XdnayiEYdrf/view?usp=drive_link)
+ - ![Interface](https://github.com/Br3ndonn/PROTOCOLOTEAPP/blob/main/interfaces/Screenshot_20250729_225748_Expo%20Go.jpg)
+ - ![Interface](https://github.com/Br3ndonn/PROTOCOLOTEAPP/blob/main/interfaces/Screenshot_20250729_225701_Expo%20Go.jpg)
 ### Análise e Relatórios
 - **Gráficos de Evolução**: Visualização do progresso temporal
 - **Estatísticas Detalhadas**: Análise quantitativa do desempenho
